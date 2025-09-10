@@ -1,7 +1,9 @@
+import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import Login from '../screens/Login'
+import Cadastro from '../screens/Cadastro'
 
 export type RootStackParamList = {
   Login: undefined
@@ -10,14 +12,6 @@ export type RootStackParamList = {
 }
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
-
-function CadastroScreen() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Cadastro</Text>
-    </View>
-  )
-}
 
 function HomeScreen() {
   return (
@@ -31,7 +25,7 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName="Cadastro"
         screenOptions={{
           headerStyle: { backgroundColor: '#3E3742' },
           headerTintColor: '#E6E0C5',
@@ -50,7 +44,18 @@ export default function AppNavigator() {
             )
           })}
         />
-        <Stack.Screen name="Cadastro" component={CadastroScreen} />
+        <Stack.Screen
+          name="Cadastro"
+          component={Cadastro}
+          options={({ navigation }) => ({
+            title: 'Cadastro',
+            headerRight: () => (
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.link}>Login</Text>
+              </TouchableOpacity>
+            )
+          })}
+        />
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Lista de Tarefas' }} />
       </Stack.Navigator>
     </NavigationContainer>
