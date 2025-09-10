@@ -1,0 +1,21 @@
+{
+  "appName": "Task List Plus",
+  "login": "Login",
+  "logout": "Logout",
+  "email": "Email",
+  "password": "Password",
+  "tasks": "Tasks",
+  "addTask": "Add task",
+  "editTask": "Edit task",
+  "title": "Title",
+  "description": "Description",
+  "datetime": "Date & time",
+  "save": "Save",
+  "cancel": "Cancel",
+  "done": "Done",
+  "settings": "Settings",
+  "language": "Language",
+  "theme": "Theme",
+  "pt": "Portuguese",
+  "en": "English"
+}
