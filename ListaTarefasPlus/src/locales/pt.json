@@ -1,0 +1,21 @@
+{
+  "nomeApp": "Lista Tarefas Plus",
+  "entrar": "Entrar",
+  "sair": "Sair",
+  "email": "E-mail",
+  "senha": "Senha",
+  "tarefas": "Tarefas",
+  "adicionarTarefa": "Adicionar tarefa",
+  "editarTarefa": "Editar tarefa",
+  "titulo": "Título",
+  "descricao": "Descrição",
+  "dataHora": "Data e hora",
+  "salvar": "Salvar",
+  "cancelar": "Cancelar",
+  "concluida": "Concluída",
+  "configuracoes": "Configurações",
+  "idioma": "Idioma",
+  "tema": "Tema",
+  "portugues": "Português",
+  "ingles": "Inglês"
+}
