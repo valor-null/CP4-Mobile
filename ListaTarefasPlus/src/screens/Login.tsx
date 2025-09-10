@@ -20,7 +20,6 @@ export default function Login() {
     setLoading(true)
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password)
-      navigation.navigate('Home')
     } catch {
       setError('E-mail ou senha inválidos')
     } finally {
