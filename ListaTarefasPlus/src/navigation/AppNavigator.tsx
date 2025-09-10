@@ -6,7 +6,7 @@ import Login from '../screens/Login'
 import Cadastro from '../screens/Cadastro'
 import Home from '../screens/Home'
 import { onAuthStateChanged, signOut, User } from 'firebase/auth'
-import { auth } from '../firebase/app'
+import { auth } from '../firebase/firebaseConfig'
 
 export type RootStackParamList = {
   Login: undefined

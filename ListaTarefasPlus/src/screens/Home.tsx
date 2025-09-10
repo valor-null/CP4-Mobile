@@ -1,164 +1,200 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, ScrollView } from 'react-native'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { auth } from '../firebase/app'
-import app from '../firebase/app'
-import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore'
+import { useEffect, useMemo, useState } from 'react'
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native'
+import { MaterialIcons } from '@expo/vector-icons'
+import SeletorDeCategoria from '../components/SeletorDeCategoria'
+import CampoDeData from '../components/CampoDeData'
+import { auth, db } from '../firebase/firebaseConfig'
+import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
+import { signOut } from 'firebase/auth'
 
-type CategoryKey = 'all' | 'work' | 'personal' | 'study' | 'wishlist' | 'others'
-type Task = { id: string; title: string; description: string; completed: boolean; dueDate: string; createdAt?: any; updatedAt?: any; category: Exclude<CategoryKey, 'all'> }
+type Tarefa = {
+  id: string
+  title: string
+  description: string
+  category: string
+  completed: boolean
+  dueDate?: Date | null
+  createdAt?: any
+  updatedAt?: any
+}
 
-const db = getFirestore(app)
-const PALETTE = { bg: '#E6E0C5', card: '#EBC4A9', card2: '#F2DCCB', text: '#3E3742', primary: '#825E65', accent: '#CC8383' }
-const CATEGORIES: { key: CategoryKey; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap }[] = [
-  { key: 'all', label: 'Todas', icon: 'apps' },
-  { key: 'work', label: 'Trabalho', icon: 'briefcase-outline' },
-  { key: 'personal', label: 'Pessoal', icon: 'account-heart-outline' },
-  { key: 'study', label: 'Estudos', icon: 'school-outline' },
-  { key: 'wishlist', label: 'Desejos', icon: 'star-outline' },
-  { key: 'others', label: 'Outros', icon: 'dots-horizontal' }
+const P = { bg: '#E6E0C5', card: '#EBC4A9', text: '#3E3742', primary: '#825E65' }
+
+const CATS = [
+  { chave: 'all', rotulo: 'Todos' },
+  { chave: 'trabalho', rotulo: 'Trabalho' },
+  { chave: 'pessoal', rotulo: 'Pessoal' },
+  { chave: 'estudos', rotulo: 'Estudos' },
+  { chave: 'desejos', rotulo: 'Desejos' }
 ]
 
 export default function Home() {
-  const uid = auth.currentUser?.uid
-  const userLabel = useMemo(() => auth.currentUser?.displayName || auth.currentUser?.email || 'Você', [])
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [dueDate, setDueDate] = useState('')
-  const [activeCat, setActiveCat] = useState<CategoryKey>('all')
+  const user = auth.currentUser
+  const nome = user?.displayName || user?.email?.split('@')[0] || ''
+  const [sel, setSel] = useState('all')
+  const [titulo, setTitulo] = useState('')
+  const [desc, setDesc] = useState('')
+  const [formCat, setFormCat] = useState('trabalho')
+  const [venc, setVenc] = useState<Date | null>(null)
+  const [itens, setItens] = useState<Tarefa[]>([])
 
   useEffect(() => {
-    if (!uid) return
-    const q = query(collection(db, 'users', uid, 'tasks'), orderBy('createdAt', 'desc'))
+    if (!user) return
+    const ref = collection(db, 'users', user.uid, 'tasks')
+    const q = query(ref, where('deleted', '!=', true), orderBy('deleted'), orderBy('createdAt', 'desc'))
     const unsub = onSnapshot(q, snap => {
-      const data: Task[] = snap.docs.map(d => {
-        const v = d.data() as any
-        return { id: d.id, title: String(v.title || ''), description: String(v.description || ''), completed: Boolean(v.completed), dueDate: String(v.dueDate || ''), createdAt: v.createdAt, updatedAt: v.updatedAt, category: (v.category || 'others') as Task['category'] }
+      const rows: Tarefa[] = []
+      snap.forEach(d => {
+        const data = d.data() as any
+        rows.push({
+          id: d.id,
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          completed: !!data.completed,
+          dueDate: data.dueDate?.toDate ? data.dueDate.toDate() : data.dueDate ?? null,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt
+        })
       })
-      setTasks(data)
+      setItens(rows)
     })
-    return () => unsub()
-  }, [uid])
+    return unsub
+  }, [user?.uid])
+
+  const filtrados = useMemo(() => {
+    if (sel === 'all') return itens
+    return itens.filter(t => t.category === sel)
+  }, [itens, sel])
 
   async function addTask() {
-    if (!uid) return
-    const t = title.trim()
-    const desc = description.trim()
-    const dd = dueDate.trim()
-    if (!t || !dd) return
-    const selected = activeCat === 'all' ? 'others' : activeCat
-    await addDoc(collection(db, 'users', uid, 'tasks'), { title: t, description: desc, completed: false, dueDate: dd, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), category: selected })
-    setTitle('')
-    setDescription('')
-    setDueDate('')
+    if (!user) return
+    if (!titulo.trim()) return
+    const ref = collection(db, 'users', user.uid, 'tasks')
+    const payload: any = {
+      title: titulo.trim(),
+      description: desc.trim(),
+      category: formCat,
+      completed: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+    if (venc) payload.dueDate = Timestamp.fromDate(venc)
+    await addDoc(ref, payload)
+    setTitulo('')
+    setDesc('')
+    setVenc(null)
+    setFormCat('trabalho')
   }
 
-  async function toggleTask(item: Task) {
-    if (!uid) return
-    await updateDoc(doc(db, 'users', uid, 'tasks', item.id), { completed: !item.completed, updatedAt: serverTimestamp() })
+  async function toggleDone(id: string, done: boolean) {
+    if (!user) return
+    await updateDoc(doc(db, 'users', user.uid, 'tasks', id), { completed: !done, updatedAt: serverTimestamp() })
   }
 
-  async function removeTask(id: string) {
-    if (!uid) return
-    await deleteDoc(doc(db, 'users', uid, 'tasks', id))
+  async function remover(id: string) {
+    if (!user) return
+    await deleteDoc(doc(db, 'users', user.uid, 'tasks', id))
   }
 
-  const filtered = activeCat === 'all' ? tasks : tasks.filter(t => t.category === activeCat)
+  function fmt(d?: Date | null) {
+    if (!d) return ''
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const hh = String(d.getHours()).padStart(2, '0')
+    const mi = String(d.getMinutes()).padStart(2, '0')
+    const yyyy = d.getFullYear()
+    return `${dd}/${mm}/${yyyy}, ${hh}:${mi}`
+  }
 
-  function renderItem({ item }: { item: Task }) {
-    const cat = CATEGORIES.find(c => c.key === item.category)
+  function Item({ item }: { item: Tarefa }) {
     return (
-      <View style={styles.item}>
-        <TouchableOpacity onPress={() => toggleTask(item)} style={[styles.check, item.completed && styles.checkOn]}>
-          {item.completed ? <Text style={styles.checkMark}>✓</Text> : null}
+      <View style={styles.card}>
+        <TouchableOpacity onPress={() => toggleDone(item.id, item.completed)} style={[styles.check, item.completed && styles.checkOn]}>
+          <MaterialIcons name={item.completed ? 'check' : 'radio-button-unchecked'} size={18} color={item.completed ? P.bg : P.primary} />
         </TouchableOpacity>
-        <View style={styles.itemMain}>
-          <View style={styles.itemHead}>
-            <View style={styles.itemIconWrap}>
-              <MaterialCommunityIcons name={(cat?.icon || 'dots-horizontal') as any} size={18} color={PALETTE.primary} />
-            </View>
-            <Text style={[styles.itemTitle, item.completed && styles.itemTextDone]} numberOfLines={1}>{item.title}</Text>
-          </View>
-          {!!item.description && <Text style={styles.itemDesc} numberOfLines={2}>{item.description}</Text>}
-          {!!item.dueDate && <Text style={styles.itemDue}>Vence: {item.dueDate}</Text>}
+        <View style={styles.cardText}>
+          <Text style={[styles.cardTitle, item.completed && styles.cardTitleDone]} numberOfLines={1}>{item.title}</Text>
+          {!!item.description && <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>}
+          {!!item.dueDate && <Text style={styles.cardDue}>Vence: {fmt(item.dueDate || null)}</Text>}
         </View>
-        <TouchableOpacity onPress={() => removeTask(item.id)} style={styles.delete}>
-          <Text style={styles.deleteText}>×</Text>
+        <TouchableOpacity onPress={() => remover(item.id)} style={styles.del}>
+          <MaterialIcons name="close" size={18} color={P.primary} />
         </TouchableOpacity>
       </View>
     )
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.hello}>Olá, {userLabel}</Text>
-          <Text style={styles.subtitle}>Organize suas tarefas</Text>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catRow}>
-          {CATEGORIES.map(cat => {
-            const active = activeCat === cat.key
-            return (
-              <TouchableOpacity key={cat.key} onPress={() => setActiveCat(cat.key)} style={[styles.catChip, active && styles.catChipActive]}>
-                <MaterialCommunityIcons name={cat.icon as any} size={16} color={active ? PALETTE.bg : PALETTE.primary} />
-                <Text style={[styles.catText, active && styles.catTextActive]}>{cat.label}</Text>
-              </TouchableOpacity>
-            )
-          })}
-        </ScrollView>
-
-        <View style={styles.card}>
-          <TextInput value={title} onChangeText={setTitle} placeholder="Título" placeholderTextColor={PALETTE.primary} style={styles.input} />
-          <TextInput value={description} onChangeText={setDescription} placeholder="Descrição" placeholderTextColor={PALETTE.primary} style={styles.input} />
-          <TextInput value={dueDate} onChangeText={setDueDate} placeholder="Data (ISO ex: 2025-09-10T14:00:00Z)" placeholderTextColor={PALETTE.primary} style={styles.input} />
-          <TouchableOpacity onPress={addTask} style={styles.button}><Text style={styles.buttonText}>Adicionar</Text></TouchableOpacity>
-        </View>
-
-        <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>Minhas tarefas</Text>
-          <Text style={styles.listCount}>{filtered.length}</Text>
-        </View>
-
-        <FlatList data={filtered} keyExtractor={item => item.id} renderItem={renderItem} contentContainerStyle={filtered.length === 0 ? styles.emptyWrap : undefined} ListEmptyComponent={<Text style={styles.emptyText}>Sem tarefas por aqui</Text>} />
+    <View style={styles.safe}>
+      <View style={styles.topbar}>
+        <Text style={styles.title}>Lista de Tarefas</Text>
+        <TouchableOpacity onPress={() => signOut(auth)}>
+          <Text style={styles.exit}>Sair</Text>
+        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+
+      <View style={styles.header}>
+        <Text style={styles.ola}>Olá, {nome}</Text>
+        <Text style={styles.sub}>Organize suas tarefas</Text>
+      </View>
+
+      <SeletorDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.gapBottom} />
+
+      <View style={styles.form}>
+        <TextInput placeholder="Título" value={titulo} onChangeText={setTitulo} style={styles.input} placeholderTextColor={P.text + '99'} />
+        <TextInput placeholder="Descrição" value={desc} onChangeText={setDesc} style={styles.input} placeholderTextColor={P.text + '99'} />
+        <CampoDeData valor={venc} onChange={setVenc} estiloBotao={styles.dateBtn} estiloTexto={styles.dateTxt} icone="event" rotulo="Data" />
+        <SeletorDeCategoria dados={CATS.filter(c => c.chave !== 'all')} valor={formCat} onChange={setFormCat} style={styles.gapTop} />
+        <TouchableOpacity onPress={addTask} style={styles.button}>
+          <Text style={styles.buttonTxt}>Adicionar</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.listHeader}>
+        <Text style={styles.listTitle}>Minhas tarefas</Text>
+        <Text style={styles.listCount}>{filtrados.length}</Text>
+      </View>
+
+      <FlatList
+        data={filtrados}
+        keyExtractor={i => i.id}
+        renderItem={Item}
+        ListEmptyComponent={<Text style={styles.empty}>Sem tarefas por aqui</Text>}
+        contentContainerStyle={filtrados.length === 0 ? styles.emptyWrap : undefined}
+      />
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: PALETTE.bg },
-  container: { flex: 1, padding: 20 },
-  header: { marginBottom: 12 },
-  hello: { fontSize: 24, fontWeight: '800', color: PALETTE.text },
-  subtitle: { fontSize: 14, color: PALETTE.primary, marginTop: 4 },
-  catRow: { gap: 8, paddingVertical: 8 },
-  catChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, backgroundColor: PALETTE.card, borderWidth: 1, borderColor: PALETTE.primary },
-  catChipActive: { backgroundColor: PALETTE.primary, borderColor: PALETTE.primary },
-  catText: { color: PALETTE.primary, fontWeight: '700' },
-  catTextActive: { color: PALETTE.bg },
-  card: { backgroundColor: PALETTE.card, borderRadius: 16, padding: 14, gap: 10, marginBottom: 12 },
-  input: { backgroundColor: PALETTE.bg, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, color: PALETTE.text, borderWidth: 1, borderColor: PALETTE.primary },
-  button: { backgroundColor: PALETTE.primary, paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
-  buttonText: { color: PALETTE.bg, fontSize: 14, fontWeight: '700' },
-  listHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, marginBottom: 8 },
-  listTitle: { color: PALETTE.text, fontSize: 18, fontWeight: '700' },
-  listCount: { color: PALETTE.accent, fontSize: 16, fontWeight: '700' },
-  item: { backgroundColor: PALETTE.card2, borderRadius: 14, padding: 12, flexDirection: 'row', alignItems: 'center', marginBottom: 10, borderWidth: 1, borderColor: PALETTE.card },
-  check: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: PALETTE.primary, alignItems: 'center', justifyContent: 'center', marginRight: 10, backgroundColor: PALETTE.bg },
-  checkOn: { backgroundColor: PALETTE.primary, borderColor: PALETTE.primary },
-  checkMark: { color: PALETTE.bg, fontSize: 18, fontWeight: '800' },
-  itemMain: { flex: 1, gap: 4 },
-  itemHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  itemIconWrap: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: PALETTE.bg, borderWidth: 1, borderColor: PALETTE.card },
-  itemTitle: { flex: 1, color: PALETTE.text, fontSize: 16, fontWeight: '700' },
-  itemDesc: { color: PALETTE.primary, fontSize: 13 },
-  itemDue: { color: PALETTE.accent, fontSize: 12, fontWeight: '700' },
-  itemTextDone: { textDecorationLine: 'line-through', color: PALETTE.primary },
-  delete: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: PALETTE.accent, marginLeft: 8 },
-  deleteText: { color: PALETTE.bg, fontSize: 18, fontWeight: '800', lineHeight: 18 },
-  emptyWrap: { flexGrow: 1, alignItems: 'center', justifyContent: 'center' },
-  emptyText: { color: PALETTE.primary, fontSize: 14 }
+  safe: { flex: 1, backgroundColor: P.bg, paddingHorizontal: 16, paddingTop: 10 },
+  topbar: { height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  title: { color: '#fff', fontSize: 16, fontWeight: '700', backgroundColor: '#3E3742', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  exit: { color: '#3E3742', fontWeight: '700' },
+  header: { marginTop: 8, marginBottom: 10 },
+  ola: { color: P.text, fontSize: 20, fontWeight: '800' },
+  sub: { color: P.text + '99', marginTop: 2 },
+  gapBottom: { paddingBottom: 8 },
+  gapTop: { paddingTop: 8 },
+  form: { backgroundColor: P.card, padding: 12, borderRadius: 14, gap: 8 },
+  input: { backgroundColor: P.bg, borderRadius: 10, paddingHorizontal: 12, height: 44, color: P.text, borderWidth: 1, borderColor: P.card },
+  dateBtn: { height: 44, borderRadius: 10, backgroundColor: P.primary, alignItems: 'center', justifyContent: 'center' },
+  dateTxt: { color: P.bg, fontWeight: '700' },
+  button: { height: 44, borderRadius: 10, backgroundColor: P.primary, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  buttonTxt: { color: P.bg, fontWeight: '700' },
+  listHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 4 },
+  listTitle: { color: P.text, fontSize: 14, fontWeight: '800' },
+  listCount: { color: '#CC8383', fontWeight: '700' },
+  emptyWrap: { flexGrow: 1, justifyContent: 'center' },
+  empty: { color: P.text + '66', textAlign: 'center' },
+  card: { backgroundColor: '#F2D9CC', padding: 12, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+  check: { width: 28, height: 28, borderRadius: 999, borderWidth: 2, borderColor: P.primary, alignItems: 'center', justifyContent: 'center' },
+  checkOn: { backgroundColor: P.primary, borderColor: P.primary },
+  cardText: { flex: 1 },
+  cardTitle: { color: P.text, fontWeight: '800' },
+  cardTitleDone: { textDecorationLine: 'line-through', color: P.text + '99' },
+  cardDesc: { color: P.text + '99', marginTop: 2 },
+  cardDue: { color: '#9a6c73', marginTop: 2, fontSize: 12, fontWeight: '700' },
+  del: { width: 28, height: 28, borderRadius: 999, alignItems: 'center', justifyContent: 'center' }
 })
