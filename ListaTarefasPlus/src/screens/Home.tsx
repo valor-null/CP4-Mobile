@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import SeletorDeCategoria from '../components/SeletorDeCategoria'
+import FiltrosDeCategoria from '../components/FiltrosDeCategoria'
 import CampoDeData from '../components/CampoDeData'
 import { auth, db } from '../firebase/firebaseConfig'
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
-import { signOut } from 'firebase/auth'
 
 type Tarefa = {
   id: string
@@ -127,25 +126,18 @@ export default function Home() {
 
   return (
     <View style={styles.safe}>
-      <View style={styles.topbar}>
-        <Text style={styles.title}>Lista de Tarefas</Text>
-        <TouchableOpacity onPress={() => signOut(auth)}>
-          <Text style={styles.exit}>Sair</Text>
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.header}>
         <Text style={styles.ola}>Olá, {nome}</Text>
         <Text style={styles.sub}>Organize suas tarefas</Text>
       </View>
 
-      <SeletorDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.gapBottom} />
+      <FiltrosDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.gapBottom} />
 
       <View style={styles.form}>
         <TextInput placeholder="Título" value={titulo} onChangeText={setTitulo} style={styles.input} placeholderTextColor={P.text + '99'} />
         <TextInput placeholder="Descrição" value={desc} onChangeText={setDesc} style={styles.input} placeholderTextColor={P.text + '99'} />
         <CampoDeData valor={venc} onChange={setVenc} estiloBotao={styles.dateBtn} estiloTexto={styles.dateTxt} icone="event" rotulo="Data" />
-        <SeletorDeCategoria dados={CATS.filter(c => c.chave !== 'all')} valor={formCat} onChange={setFormCat} style={styles.gapTop} />
+        <FiltrosDeCategoria dados={CATS.filter(c => c.chave !== 'all')} valor={formCat} onChange={setFormCat} style={styles.gapTop} />
         <TouchableOpacity onPress={addTask} style={styles.button}>
           <Text style={styles.buttonTxt}>Adicionar</Text>
         </TouchableOpacity>
@@ -169,9 +161,6 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: P.bg, paddingHorizontal: 16, paddingTop: 10 },
-  topbar: { height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { color: '#fff', fontSize: 16, fontWeight: '700', backgroundColor: '#3E3742', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
-  exit: { color: '#3E3742', fontWeight: '700' },
   header: { marginTop: 8, marginBottom: 10 },
   ola: { color: P.text, fontSize: 20, fontWeight: '800' },
   sub: { color: P.text + '99', marginTop: 2 },
