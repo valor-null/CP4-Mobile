@@ -80,6 +80,7 @@ export default function Home() {
       description: desc.trim(),
       category: formCat,
       completed: false,
+      deleted: false,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
@@ -193,6 +194,6 @@ function makeStyles(P: { bg: string; card: string; text: string; primary: string
     cardTitleDone: { textDecorationLine: 'line-through', color: P.text + '99' },
     cardDesc: { color: P.text + '99', marginTop: 2 },
     cardDue: { color: '#B38A92', marginTop: 2, fontSize: 12, fontWeight: '700' },
-    del: { width: 28, height: 28, borderRadius: 999, alignItems: 'center', justifyContent: 'center' }
+    del: { width: 28, height: 28, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   })
 }
