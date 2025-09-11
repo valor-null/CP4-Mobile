@@ -7,23 +7,32 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "listatarefasplus",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.valornull.listartarefasplus"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.valornull.listartarefasplus"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "googleAndroidClientId": "103265643462-d8se5g312hhojv8lmsjh5c3kfupnsm3k.apps.googleusercontent.com",
+      "googleWebClientId": "103265643462-d8se5g312hhojv8lmsjh5c3kfupnsm3k.apps.googleusercontent.com",
+      "googleExpoClientId": "103265643462-d8se5g312hhojv8lmsjh5c3kfupnsm3k.apps.googleusercontent.com",
+      "googleIosClientId": ""
     },
     "plugins": [
       "expo-localization",
