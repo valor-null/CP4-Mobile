@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import FiltrosDeCategoria from '../components/FiltrosDeCategoria'
 import CampoDeData from '../components/CampoDeData'
 import { auth, db } from '../firebase/firebaseConfig'
-import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore'
 
 type Tarefa = {
   id: string
@@ -40,7 +40,7 @@ export default function Home() {
   useEffect(() => {
     if (!user) return
     const ref = collection(db, 'users', user.uid, 'tasks')
-    const q = query(ref, where('deleted', '!=', true), orderBy('deleted'), orderBy('createdAt', 'desc'))
+    const q = query(ref, orderBy('createdAt', 'desc'))
     const unsub = onSnapshot(q, snap => {
       const rows: Tarefa[] = []
       snap.forEach(d => {
@@ -131,8 +131,6 @@ export default function Home() {
         <Text style={styles.sub}>Organize suas tarefas</Text>
       </View>
 
-      <FiltrosDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.gapBottom} />
-
       <View style={styles.form}>
         <TextInput placeholder="Título" value={titulo} onChangeText={setTitulo} style={styles.input} placeholderTextColor={P.text + '99'} />
         <TextInput placeholder="Descrição" value={desc} onChangeText={setDesc} style={styles.input} placeholderTextColor={P.text + '99'} />
@@ -147,6 +145,8 @@ export default function Home() {
         <Text style={styles.listTitle}>Minhas tarefas</Text>
         <Text style={styles.listCount}>{filtrados.length}</Text>
       </View>
+
+      <FiltrosDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.filtersUnderList} />
 
       <FlatList
         data={filtrados}
@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
   header: { marginTop: 8, marginBottom: 10 },
   ola: { color: P.text, fontSize: 20, fontWeight: '800' },
   sub: { color: P.text + '99', marginTop: 2 },
-  gapBottom: { paddingBottom: 8 },
   gapTop: { paddingTop: 8 },
   form: { backgroundColor: P.card, padding: 12, borderRadius: 14, gap: 8 },
   input: { backgroundColor: P.bg, borderRadius: 10, paddingHorizontal: 12, height: 44, color: P.text, borderWidth: 1, borderColor: P.card },
@@ -175,6 +174,7 @@ const styles = StyleSheet.create({
   listHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 4 },
   listTitle: { color: P.text, fontSize: 14, fontWeight: '800' },
   listCount: { color: '#CC8383', fontWeight: '700' },
+  filtersUnderList: { marginTop: 4, marginBottom: 8 },
   emptyWrap: { flexGrow: 1, justifyContent: 'center' },
   empty: { color: P.text + '66', textAlign: 'center' },
   card: { backgroundColor: '#F2D9CC', padding: 12, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
