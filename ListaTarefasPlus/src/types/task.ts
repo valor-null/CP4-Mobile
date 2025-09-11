@@ -8,20 +8,20 @@ export interface Task {
     title: string
     description: string
     category: Categoria
+    completed: boolean
     dueDate: Date | null
-    done: boolean
     deleted?: boolean
-    createdAt: Date
-    updatedAt?: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
 }
 
 export interface TaskDoc {
     title: string
     description: string
     category: Categoria
+    completed: boolean
     dueDate: Timestamp | null
-    done: boolean
     deleted?: boolean
-    createdAt: Timestamp
-    updatedAt?: Timestamp | null
+    createdAt: Timestamp | null
+    updatedAt: Timestamp | null
 }

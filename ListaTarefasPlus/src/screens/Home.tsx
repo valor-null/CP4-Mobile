@@ -8,17 +8,7 @@ import { auth, db } from '../firebase/firebaseConfig'
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
 import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
-
-type Tarefa = {
-  id: string
-  title: string
-  description: string
-  category: string
-  completed: boolean
-  dueDate?: Date | null
-  createdAt?: any
-  updatedAt?: any
-}
+import { Task } from '../types/task'
 
 const CATS = [
   { chave: 'all', rotulo: 'Todos' },
@@ -40,14 +30,14 @@ export default function Home() {
   const [desc, setDesc] = useState('')
   const [formCat, setFormCat] = useState('trabalho')
   const [venc, setVenc] = useState<Date | null>(null)
-  const [itens, setItens] = useState<Tarefa[]>([])
+  const [itens, setItens] = useState<Task[]>([])
 
   useEffect(() => {
     if (!user) return
     const ref = collection(db, 'users', user.uid, 'tasks')
     const q = query(ref, where('deleted', '!=', true), orderBy('deleted'), orderBy('createdAt', 'desc'))
     const unsub = onSnapshot(q, snap => {
-      const rows: Tarefa[] = []
+      const rows: Task[] = []
       snap.forEach(d => {
         const data = d.data() as any
         rows.push({
@@ -57,8 +47,9 @@ export default function Home() {
           category: data.category,
           completed: !!data.completed,
           dueDate: data.dueDate?.toDate ? data.dueDate.toDate() : data.dueDate ?? null,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt
+          deleted: data.deleted ?? false,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt ?? null,
+          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt ?? null
         })
       })
       setItens(rows)
@@ -112,7 +103,7 @@ export default function Home() {
     return `${dd}/${mm}/${yyyy}, ${hh}:${mi}`
   }
 
-  function Item({ item }: { item: Tarefa }) {
+  function Item({ item }: { item: Task }) {
     return (
       <View style={styles.card}>
         <TouchableOpacity onPress={() => toggleDone(item.id, item.completed)} style={[styles.check, item.completed && styles.checkOn]}>
@@ -133,12 +124,10 @@ export default function Home() {
   return (
     <View style={styles.safe}>
       <BotaoAlternarTema />
-
       <View style={styles.header}>
         <Text style={styles.ola}>Olá, {nome}</Text>
         <Text style={styles.sub}>Organize suas tarefas</Text>
       </View>
-
       <View style={styles.form}>
         <TextInput placeholder="Título" value={titulo} onChangeText={setTitulo} style={styles.input} placeholderTextColor={P.text + '99'} />
         <TextInput placeholder="Descrição" value={desc} onChangeText={setDesc} style={styles.input} placeholderTextColor={P.text + '99'} />
@@ -148,14 +137,11 @@ export default function Home() {
           <Text style={styles.buttonTxt}>Adicionar</Text>
         </TouchableOpacity>
       </View>
-
       <View style={styles.listHeader}>
         <Text style={styles.listTitle}>Minhas tarefas</Text>
         <Text style={styles.listCount}>{filtrados.length}</Text>
       </View>
-
       <FiltrosDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.listChips} />
-
       <FlatList
         data={filtrados}
         keyExtractor={i => i.id}
@@ -194,6 +180,6 @@ function makeStyles(P: { bg: string; card: string; text: string; primary: string
     cardTitleDone: { textDecorationLine: 'line-through', color: P.text + '99' },
     cardDesc: { color: P.text + '99', marginTop: 2 },
     cardDue: { color: '#B38A92', marginTop: 2, fontSize: 12, fontWeight: '700' },
-    del: { width: 28, height: 28, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+    del: { width: 28, height: 28, borderRadius: 999, alignItems: 'center', justifyContent: 'center' }
   })
 }
