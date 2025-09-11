@@ -29,13 +29,22 @@ const CATS = [
 
 export default function Home() {
   const user = auth.currentUser
-  const nome = user?.displayName || user?.email?.split('@')[0] || ''
+  const [nome, setNome] = useState('')
   const [sel, setSel] = useState('all')
   const [titulo, setTitulo] = useState('')
   const [desc, setDesc] = useState('')
   const [formCat, setFormCat] = useState('trabalho')
   const [venc, setVenc] = useState<Date | null>(null)
   const [itens, setItens] = useState<Tarefa[]>([])
+
+  useEffect(() => {
+    setNome(user?.displayName || '')
+    if (user && !user.displayName) {
+      user.reload().then(() => {
+        setNome(auth.currentUser?.displayName || '')
+      })
+    }
+  }, [user?.uid])
 
   useEffect(() => {
     if (!user) return
@@ -131,7 +140,7 @@ export default function Home() {
   return (
     <View style={styles.safe}>
       <View style={styles.header}>
-        <Text style={styles.ola}>Olá, {nome}</Text>
+        <Text style={styles.ola}>{nome ? `Olá, ${nome}` : 'Olá'}</Text>
         <Text style={styles.sub}>Organize suas tarefas</Text>
       </View>
 

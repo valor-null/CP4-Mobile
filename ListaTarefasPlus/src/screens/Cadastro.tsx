@@ -24,6 +24,7 @@ export default function Cadastro() {
     try {
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), senha)
       await updateProfile(cred.user, { displayName: nome.trim() })
+      await cred.user.reload()
     } catch (e: any) {
       setErr('Não foi possível criar a conta')
     } finally {
