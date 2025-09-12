@@ -1,24 +1,29 @@
-import React, { useEffect, useState } from 'react'
-import { NavigationContainer } from '@react-navigation/native'
+import { useEffect, useState } from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { ActivityIndicator, Text, TouchableOpacity, View, StyleSheet } from 'react-native'
+import { View, ActivityIndicator, StyleSheet } from 'react-native'
+import { onAuthStateChanged, User } from 'firebase/auth'
 import Login from '../screens/Login'
 import Cadastro from '../screens/Cadastro'
 import Home from '../screens/Home'
-import { onAuthStateChanged, signOut, User } from 'firebase/auth'
+import Quotes from '../screens/Quotes'
+import Profile from '../screens/Profile'
 import { auth } from '../firebase/firebaseConfig'
+import { useTheme } from '../context/ThemeContext'
 
-export type RootStackParamList = {
+type Routes = {
   Login: undefined
   Cadastro: undefined
   Home: undefined
+  Quotes: undefined
+  Profile: undefined
 }
 
-const Stack = createNativeStackNavigator<RootStackParamList>()
+const Stack = createNativeStackNavigator<Routes>()
 
 export default function AppNavigator() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const { colors } = useTheme()
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, u => {
@@ -30,7 +35,7 @@ export default function AppNavigator() {
 
   if (loading) {
     return (
-      <View style={styles.loader}>
+      <View style={[styles.loader, { backgroundColor: colors.bg }]}>
         <ActivityIndicator size="large" />
       </View>
     )
@@ -39,65 +44,24 @@ export default function AppNavigator() {
   const isAuth = !!user
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        key={isAuth ? 'auth' : 'guest'}
-        initialRouteName={isAuth ? 'Home' : 'Cadastro'}
-        screenOptions={{
-          headerStyle: { backgroundColor: '#3E3742' },
-          headerTintColor: '#E6E0C5',
-          contentStyle: { backgroundColor: '#E6E0C5' }
-        }}
-      >
-        {!isAuth && (
-          <>
-            <Stack.Screen
-              name="Login"
-              component={Login}
-              options={({ navigation }) => ({
-                title: 'Login',
-                headerRight: () => (
-                  <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
-                    <Text style={styles.link}>Cadastro</Text>
-                  </TouchableOpacity>
-                )
-              })}
-            />
-            <Stack.Screen
-              name="Cadastro"
-              component={Cadastro}
-              options={({ navigation }) => ({
-                title: 'Cadastro',
-                headerRight: () => (
-                  <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                    <Text style={styles.link}>Login</Text>
-                  </TouchableOpacity>
-                )
-              })}
-            />
-          </>
-        )}
-
-        {isAuth && (
-          <Stack.Screen
-            name="Home"
-            component={Home}
-            options={{
-              title: 'Lista de Tarefas',
-              headerRight: () => (
-                <TouchableOpacity onPress={() => signOut(auth)}>
-                  <Text style={styles.link}>Sair</Text>
-                </TouchableOpacity>
-              )
-            }}
-          />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={isAuth ? 'Home' : 'Login'}>
+      {!isAuth && (
+        <>
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Cadastro" component={Cadastro} />
+        </>
+      )}
+      {isAuth && (
+        <>
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Quotes" component={Quotes} />
+          <Stack.Screen name="Profile" component={Profile} />
+        </>
+      )}
+    </Stack.Navigator>
   )
 }
 
 const styles = StyleSheet.create({
-  link: { color: '#CC8383', fontSize: 16, fontWeight: '600' },
-  loader: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#E6E0C5' }
+  loader: { flex: 1, alignItems: 'center', justifyContent: 'center' }
 })

@@ -1,12 +1,12 @@
-import { View, ScrollView, TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native'
+import { View, ScrollView, TouchableOpacity, Text, StyleSheet, ViewStyle, StyleProp } from 'react-native'
 
 type Opcao = { chave: string; rotulo: string }
 
 type Props = {
-  dados: Opcao[]
+  dados?: Opcao[]
   valor: string
   onChange: (chave: string) => void
-  style?: ViewStyle
+  style?: StyleProp<ViewStyle>
 }
 
 const P = { bg: '#E6E0C5', card: '#EBC4A9', text: '#3E3742', primary: '#825E65' }
@@ -15,7 +15,7 @@ const CHIP_HEIGHT = 28
 const WRAP_PADDING_V = 4
 const WRAPPER_HEIGHT = CHIP_HEIGHT + WRAP_PADDING_V * 2
 
-export default function FiltrosDeCategoria({ dados, valor, onChange, style }: Props) {
+export default function FiltrosDeCategoria({ dados = [], valor, onChange, style }: Props) {
   return (
     <View style={[styles.wrapper, style]}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.linha}>
