@@ -5,6 +5,7 @@ import { onAuthStateChanged, User } from 'firebase/auth'
 import Login from '../screens/Login'
 import Cadastro from '../screens/Cadastro'
 import Home from '../screens/Home'
+import Quotes from '../screens/Quotes'
 import { auth } from '../firebase/firebaseConfig'
 import { useTheme } from '../context/ThemeContext'
 
@@ -12,6 +13,7 @@ type Routes = {
   Login: undefined
   Cadastro: undefined
   Home: undefined
+  Quotes: undefined
 }
 
 const Stack = createNativeStackNavigator<Routes>()
@@ -47,7 +49,12 @@ export default function AppNavigator() {
           <Stack.Screen name="Cadastro" component={Cadastro} />
         </>
       )}
-      {isAuth && <Stack.Screen name="Home" component={Home} />}
+      {isAuth && (
+        <>
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Quotes" component={Quotes} />
+        </>
+      )}
     </Stack.Navigator>
   )
 }

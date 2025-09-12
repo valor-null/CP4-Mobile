@@ -10,8 +10,15 @@ import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
 import { Task } from '../types/task'
 import Navbar from '../components/Navbar'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-type Tab = 'tasks' | 'quotes' | 'profile'
+type Routes = {
+  Login: undefined
+  Cadastro: undefined
+  Home: undefined
+  Quotes: undefined
+}
 
 const CATS = [
   { chave: 'all', rotulo: 'Todos' },
@@ -25,10 +32,10 @@ export default function Home() {
   const { colors: P } = useTheme()
   const insets = useSafeAreaInsets()
   const styles = useMemo(() => makeStyles(P, insets.top), [P, insets.top])
+  const navigation = useNavigation<NativeStackNavigationProp<Routes>>()
 
   const user = auth.currentUser
   const nome = user?.displayName || user?.email?.split('@')[0] || ''
-  const [tab, setTab] = useState<Tab>('tasks')
   const [sel, setSel] = useState('all')
   const [titulo, setTitulo] = useState('')
   const [desc, setDesc] = useState('')
@@ -125,60 +132,40 @@ export default function Home() {
     )
   }
 
+  function onTabChange(k: 'tasks' | 'quotes' | 'profile') {
+    if (k === 'quotes') navigation.navigate('Quotes')
+  }
+
   return (
     <View style={styles.safe}>
       <BotaoAlternarTema />
-
-      {tab === 'tasks' && (
-        <>
-          <View style={styles.header}>
-            <Text style={styles.ola}>Olá, {nome}</Text>
-            <Text style={styles.sub}>Organize suas tarefas</Text>
-          </View>
-
-          <View style={styles.form}>
-            <TextInput placeholder="Título" value={titulo} onChangeText={setTitulo} style={styles.input} placeholderTextColor={P.text + '99'} />
-            <TextInput placeholder="Descrição" value={desc} onChangeText={setDesc} style={styles.input} placeholderTextColor={P.text + '99'} />
-            <CampoDeData valor={venc} onChange={setVenc} estiloBotao={styles.dateBtn} estiloTexto={styles.dateTxt} icone="event" rotulo="Data" />
-            <FiltrosDeCategoria dados={CATS.filter(c => c.chave !== 'all')} valor={formCat} onChange={setFormCat} style={styles.formChips} />
-            <TouchableOpacity onPress={addTask} style={styles.button}>
-              <Text style={styles.buttonTxt}>Adicionar</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.listHeader}>
-            <Text style={styles.listTitle}>Minhas tarefas</Text>
-            <Text style={styles.listCount}>{filtrados.length}</Text>
-          </View>
-
-          <FiltrosDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.listChips} />
-
-          <FlatList
-            data={filtrados}
-            keyExtractor={i => i.id}
-            renderItem={Item}
-            ListEmptyComponent={<Text style={styles.empty}>Sem tarefas por aqui</Text>}
-            contentContainerStyle={filtrados.length === 0 ? styles.emptyWrap : undefined}
-          />
-        </>
-      )}
-
-      {tab === 'quotes' && (
-        <View style={styles.placeholder}>
-          <Text style={styles.placeholderTitle}>Frases motivacionais</Text>
-          <Text style={styles.placeholderSub}>Em breve</Text>
-        </View>
-      )}
-
-      {tab === 'profile' && (
-        <View style={styles.placeholder}>
-          <Text style={styles.placeholderTitle}>Meu perfil</Text>
-          <Text style={styles.placeholderSub}>Em breve</Text>
-        </View>
-      )}
-
+      <View style={styles.header}>
+        <Text style={styles.ola}>Olá, {nome}</Text>
+        <Text style={styles.sub}>Organize suas tarefas</Text>
+      </View>
+      <View style={styles.form}>
+        <TextInput placeholder="Título" value={titulo} onChangeText={setTitulo} style={styles.input} placeholderTextColor={P.text + '99'} />
+        <TextInput placeholder="Descrição" value={desc} onChangeText={setDesc} style={styles.input} placeholderTextColor={P.text + '99'} />
+        <CampoDeData valor={venc} onChange={setVenc} estiloBotao={styles.dateBtn} estiloTexto={styles.dateTxt} icone="event" rotulo="Data" />
+        <FiltrosDeCategoria dados={CATS.filter(c => c.chave !== 'all')} valor={formCat} onChange={setFormCat} style={styles.formChips} />
+        <TouchableOpacity onPress={addTask} style={styles.button}>
+          <Text style={styles.buttonTxt}>Adicionar</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.listHeader}>
+        <Text style={styles.listTitle}>Minhas tarefas</Text>
+        <Text style={styles.listCount}>{filtrados.length}</Text>
+      </View>
+      <FiltrosDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.listChips} />
+      <FlatList
+        data={filtrados}
+        keyExtractor={i => i.id}
+        renderItem={Item}
+        ListEmptyComponent={<Text style={styles.empty}>Sem tarefas por aqui</Text>}
+        contentContainerStyle={filtrados.length === 0 ? styles.emptyWrap : undefined}
+      />
       <View style={styles.navbar}>
-        <Navbar value={tab} onChange={setTab} />
+        <Navbar value="tasks" onChange={onTabChange} />
       </View>
     </View>
   )
@@ -212,9 +199,6 @@ function makeStyles(P: { bg: string; card: string; text: string; primary: string
     cardDesc: { color: P.text + '99', marginTop: 2 },
     cardDue: { color: '#B38A92', marginTop: 2, fontSize: 12, fontWeight: '700' },
     del: { width: 28, height: 28, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-    placeholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-    placeholderTitle: { color: P.text, fontSize: 18, fontWeight: '800' },
-    placeholderSub: { color: P.text + '99', marginTop: 4 },
     navbar: { marginTop: 8 }
   })
 }
