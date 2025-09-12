@@ -6,6 +6,7 @@ import Login from '../screens/Login'
 import Cadastro from '../screens/Cadastro'
 import Home from '../screens/Home'
 import Quotes from '../screens/Quotes'
+import Profile from '../screens/Profile'
 import { auth } from '../firebase/firebaseConfig'
 import { useTheme } from '../context/ThemeContext'
 
@@ -14,6 +15,7 @@ type Routes = {
   Cadastro: undefined
   Home: undefined
   Quotes: undefined
+  Profile: undefined
 }
 
 const Stack = createNativeStackNavigator<Routes>()
@@ -53,6 +55,7 @@ export default function AppNavigator() {
         <>
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Quotes" component={Quotes} />
+          <Stack.Screen name="Profile" component={Profile} />
         </>
       )}
     </Stack.Navigator>

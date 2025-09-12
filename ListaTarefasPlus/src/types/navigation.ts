@@ -3,4 +3,5 @@ export type RootStackParamList = {
     Cadastro: undefined
     Home: undefined
     Quotes: undefined
+    Profile: undefined
 }

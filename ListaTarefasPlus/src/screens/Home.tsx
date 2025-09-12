@@ -12,13 +12,7 @@ import { Task } from '../types/task'
 import Navbar from '../components/Navbar'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-
-type Routes = {
-  Login: undefined
-  Cadastro: undefined
-  Home: undefined
-  Quotes: undefined
-}
+import { RootStackParamList } from '../types/navigation'
 
 const CATS = [
   { chave: 'all', rotulo: 'Todos' },
@@ -32,7 +26,7 @@ export default function Home() {
   const { colors: P } = useTheme()
   const insets = useSafeAreaInsets()
   const styles = useMemo(() => makeStyles(P, insets.top), [P, insets.top])
-  const navigation = useNavigation<NativeStackNavigationProp<Routes>>()
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   const user = auth.currentUser
   const nome = user?.displayName || user?.email?.split('@')[0] || ''
@@ -134,6 +128,7 @@ export default function Home() {
 
   function onTabChange(k: 'tasks' | 'quotes' | 'profile') {
     if (k === 'quotes') navigation.navigate('Quotes')
+    if (k === 'profile') navigation.navigate('Profile')
   }
 
   return (
@@ -164,7 +159,7 @@ export default function Home() {
         ListEmptyComponent={<Text style={styles.empty}>Sem tarefas por aqui</Text>}
         contentContainerStyle={filtrados.length === 0 ? styles.emptyWrap : undefined}
       />
-      <View style={styles.navbar}>
+      <View style={styles.navbarFixed}>
         <Navbar value="tasks" onChange={onTabChange} />
       </View>
     </View>
@@ -173,7 +168,7 @@ export default function Home() {
 
 function makeStyles(P: { bg: string; card: string; text: string; primary: string }, topInset: number) {
   return StyleSheet.create({
-    safe: { flex: 1, backgroundColor: P.bg, paddingHorizontal: 16, paddingTop: topInset + 56 },
+    safe: { flex: 1, backgroundColor: P.bg, paddingHorizontal: 16, paddingTop: topInset + 56, paddingBottom: 96 },
     header: { marginBottom: 12 },
     ola: { color: P.text, fontSize: 20, fontWeight: '800' },
     sub: { color: P.text + '99', marginTop: 2 },
@@ -199,6 +194,6 @@ function makeStyles(P: { bg: string; card: string; text: string; primary: string
     cardDesc: { color: P.text + '99', marginTop: 2 },
     cardDue: { color: '#B38A92', marginTop: 2, fontSize: 12, fontWeight: '700' },
     del: { width: 28, height: 28, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-    navbar: { marginTop: 8 }
+    navbarFixed: { position: 'absolute', left: 16, right: 16, bottom: 16 }
   })
 }

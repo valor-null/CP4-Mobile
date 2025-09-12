@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
 
-type Routes = { Login: undefined; Cadastro: undefined; Home: undefined; Quotes: undefined }
+type Routes = { Login: undefined; Cadastro: undefined; Home: undefined; Quotes: undefined; Profile: undefined }
 
 const client = new QueryClient()
 
@@ -108,6 +108,7 @@ export default function Quotes() {
   const navigation = useNavigation<NativeStackNavigationProp<Routes>>()
   function onTabChange(k: 'tasks' | 'quotes' | 'profile') {
     if (k === 'tasks') navigation.navigate('Home')
+    if (k === 'profile') navigation.navigate('Profile')
   }
   return (
     <QueryClientProvider client={client}>
