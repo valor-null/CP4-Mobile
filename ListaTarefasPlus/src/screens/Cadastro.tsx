@@ -5,9 +5,13 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { auth } from '../firebase/firebaseConfig'
 import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
+import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
+import { useTranslation } from 'react-i18next'
 
 export default function Cadastro() {
   const { colors: P } = useTheme()
+  const { t } = useTranslation()
+
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
@@ -19,7 +23,7 @@ export default function Cadastro() {
   async function registrar() {
     setErr(null)
     if (!nome.trim() || !email.trim() || !senha) {
-      setErr('Preencha nome, e-mail e senha')
+      setErr(t('preenchaNomeEmailSenha'))
       return
     }
     setLoading(true)
@@ -27,7 +31,7 @@ export default function Cadastro() {
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), senha)
       await updateProfile(cred.user, { displayName: nome.trim() })
     } catch {
-      setErr('Não foi possível cadastrar')
+      setErr(t('erroCadastroGenerico'))
     } finally {
       setLoading(false)
     }
@@ -35,23 +39,45 @@ export default function Cadastro() {
 
   return (
     <View style={s.safe}>
+      <BotaoAlternarIdioma />
       <BotaoAlternarTema />
 
-      <Text style={s.title}>Criar conta</Text>
+      <Text style={s.title}>{t('criarConta')}</Text>
 
       <View style={s.inputWrap}>
         <Feather name="user" size={18} color={P.primary} />
-        <TextInput placeholder="Nome" value={nome} onChangeText={setNome} style={s.input} placeholderTextColor={P.text + '99'} />
+        <TextInput
+          placeholder={t('nome')}
+          value={nome}
+          onChangeText={setNome}
+          style={s.input}
+          placeholderTextColor={P.text + '99'}
+        />
       </View>
 
       <View style={s.inputWrap}>
         <Feather name="mail" size={18} color={P.primary} />
-        <TextInput placeholder="E-mail" value={email} onChangeText={setEmail} style={s.input} placeholderTextColor={P.text + '99'} keyboardType="email-address" autoCapitalize="none" />
+        <TextInput
+          placeholder={t('email')}
+          value={email}
+          onChangeText={setEmail}
+          style={s.input}
+          placeholderTextColor={P.text + '99'}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
       </View>
 
       <View style={s.inputWrap}>
         <MaterialCommunityIcons name="lock-outline" size={18} color={P.primary} />
-        <TextInput placeholder="Senha" value={senha} onChangeText={setSenha} style={s.input} placeholderTextColor={P.text + '99'} secureTextEntry={!show} />
+        <TextInput
+          placeholder={t('senha')}
+          value={senha}
+          onChangeText={setSenha}
+          style={s.input}
+          placeholderTextColor={P.text + '99'}
+          secureTextEntry={!show}
+        />
         <TouchableOpacity onPress={() => setShow(v => !v)} style={s.iconBtn}>
           <Feather name={show ? 'eye' : 'eye-off'} size={18} color={P.primary} />
         </TouchableOpacity>
@@ -61,7 +87,7 @@ export default function Cadastro() {
 
       <TouchableOpacity onPress={registrar} style={[s.button, loading && { opacity: 0.7 }]}>
         <Feather name="user-check" size={18} color={P.bg} />
-        <Text style={s.buttonTxt}>{loading ? 'Cadastrando...' : 'Cadastrar'}</Text>
+        <Text style={s.buttonTxt}>{loading ? t('cadastrando') : t('cadastrar')}</Text>
       </TouchableOpacity>
     </View>
   )
