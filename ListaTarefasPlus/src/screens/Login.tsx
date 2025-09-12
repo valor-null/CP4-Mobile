@@ -6,10 +6,14 @@ import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase/firebaseConfig'
 import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
+import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
+import { useTranslation } from 'react-i18next'
 
 export default function Login() {
   const nav = useNavigation<any>()
   const { colors: P } = useTheme()
+  const { t } = useTranslation()
+
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [show, setShow] = useState(false)
@@ -24,7 +28,7 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email.trim(), senha)
     } catch {
-      setErr('Não foi possível entrar')
+      setErr(t('erroLoginGenerico'))
     } finally {
       setLoading(false)
     }
@@ -33,13 +37,14 @@ export default function Login() {
   return (
     <View style={s.safe}>
       <BotaoAlternarTema />
+      <BotaoAlternarIdioma />
 
-      <Text style={s.title}>Bem-vindo</Text>
+      <Text style={s.title}>{t('bemVindo')}</Text>
 
       <View style={s.inputWrap}>
         <Feather name="mail" size={18} color={P.primary} />
         <TextInput
-          placeholder="E-mail"
+          placeholder={t('email')}
           value={email}
           onChangeText={setEmail}
           style={s.input}
@@ -52,7 +57,7 @@ export default function Login() {
       <View style={s.inputWrap}>
         <MaterialCommunityIcons name="lock-outline" size={18} color={P.primary} />
         <TextInput
-          placeholder="Senha"
+          placeholder={t('senha')}
           value={senha}
           onChangeText={setSenha}
           style={s.input}
@@ -68,12 +73,12 @@ export default function Login() {
 
       <TouchableOpacity onPress={entrar} style={[s.button, loading && { opacity: 0.7 }]}>
         <Feather name="log-in" size={18} color={P.bg} />
-        <Text style={s.buttonTxt}>{loading ? 'Entrando...' : 'Entrar'}</Text>
+        <Text style={s.buttonTxt}>{loading ? t('entrando') : t('entrar')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => nav.navigate('Cadastro')} style={s.linkRow}>
         <Feather name="user-plus" size={16} color={P.primary} />
-        <Text style={s.link}>Criar conta</Text>
+        <Text style={s.link}>{t('criarConta')}</Text>
       </TouchableOpacity>
     </View>
   )

@@ -1,21 +1,8 @@
 {
-  "nomeApp": "Task List Plus",
-  "entrar": "Login",
-  "sair": "Logout",
-  "email": "Email",
-  "senha": "Password",
-  "tarefas": "Tasks",
-  "adicionarTarefa": "Add task",
-  "editarTarefa": "Edit task",
-  "titulo": "Title",
-  "descricao": "Description",
-  "dataHora": "Date & time",
-  "salvar": "Save",
-  "cancelar": "Cancel",
-  "concluida": "Done",
-  "configuracoes": "Settings",
-  "idioma": "Language",
-  "tema": "Theme",
-  "portugues": "Portuguese",
-  "ingles": "English"
+  "bemVindo": "Welcome",
+  "criarConta": "Create account",
+  "entrando": "Signing in...",
+  "entrar": "Sign in",
+  "erroLoginGenerico": "Could not sign in",
+  "senha": "password"
 }
