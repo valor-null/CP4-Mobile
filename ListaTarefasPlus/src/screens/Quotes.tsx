@@ -7,6 +7,8 @@ import Navbar from '../components/Navbar'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
+import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
+import { useTranslation } from 'react-i18next'
 
 type Routes = { Login: undefined; Cadastro: undefined; Home: undefined; Quotes: undefined; Profile: undefined }
 
@@ -62,6 +64,7 @@ async function getQuotePt() {
 
 function QuoteCard({ slot }: { slot: string }) {
   const { colors: P } = useTheme()
+  const { t } = useTranslation()
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['quote-pt', slot],
     queryFn: getQuotePt,
@@ -72,7 +75,7 @@ function QuoteCard({ slot }: { slot: string }) {
     return (
       <View style={[styles.card, { backgroundColor: P.card }]}>
         <ActivityIndicator size="small" color={P.primary} />
-        <Text style={[styles.loading, { color: P.text + '99' }]}>Carregando...</Text>
+        <Text style={[styles.loading, { color: P.text + '99' }]}>{t('carregando')}</Text>
       </View>
     )
   }
@@ -80,10 +83,10 @@ function QuoteCard({ slot }: { slot: string }) {
   if (isError) {
     return (
       <View style={[styles.card, { backgroundColor: P.card }]}>
-        <Text style={[styles.error, { color: P.primary }]}>Não foi possível carregar</Text>
+        <Text style={[styles.error, { color: P.primary }]}>{t('naoFoiPossivelCarregar')}</Text>
         <TouchableOpacity onPress={() => refetch()} style={[styles.button, { backgroundColor: P.primary }]}>
           <Ionicons name="refresh" size={16} color={P.bg} />
-          <Text style={[styles.buttonTxt, { color: P.bg }]}>Tentar de novo</Text>
+          <Text style={[styles.buttonTxt, { color: P.bg }]}>{t('tentarDeNovo')}</Text>
         </TouchableOpacity>
       </View>
     )
@@ -96,7 +99,7 @@ function QuoteCard({ slot }: { slot: string }) {
       <Text style={[styles.author, { color: P.text + '99' }]}>— {data?.author}</Text>
       <TouchableOpacity onPress={() => refetch()} disabled={isFetching} style={[styles.button, { backgroundColor: P.primary, opacity: isFetching ? 0.7 : 1 }]}>
         <Ionicons name="refresh" size={16} color={P.bg} />
-        <Text style={[styles.buttonTxt, { color: P.bg }]}>{isFetching ? 'Buscando...' : 'Nova frase'}</Text>
+        <Text style={[styles.buttonTxt, { color: P.bg }]}>{isFetching ? t('buscando') : t('novaFrase')}</Text>
       </TouchableOpacity>
     </View>
   )
@@ -106,15 +109,19 @@ export default function Quotes() {
   const insets = useSafeAreaInsets()
   const { colors: P } = useTheme()
   const navigation = useNavigation<NativeStackNavigationProp<Routes>>()
+  const { t } = useTranslation()
+
   function onTabChange(k: 'tasks' | 'quotes' | 'profile') {
     if (k === 'tasks') navigation.navigate('Home')
     if (k === 'profile') navigation.navigate('Profile')
   }
+
   return (
     <QueryClientProvider client={client}>
       <View style={[styles.safe, { backgroundColor: P.bg, paddingTop: insets.top + 56, paddingBottom: 96 }]}>
+        <BotaoAlternarIdioma />
         <BotaoAlternarTema />
-        <Text style={[styles.title, { color: P.text }]}>Frases motivacionais</Text>
+        <Text style={[styles.title, { color: P.text }]}>{t('frasesMotivacionais')}</Text>
         <View style={styles.grid}>
           <QuoteCard slot="a" />
           <QuoteCard slot="b" />

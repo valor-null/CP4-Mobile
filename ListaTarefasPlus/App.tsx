@@ -4,6 +4,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import AppNavigator from './src/navigation/AppNavigator'
 import { ThemeProvider, useTheme } from './src/context/ThemeContext'
 
+import './src/services/i18n'
+import { LanguageProvider } from './src/context/LanguageContext'
+
 function Root() {
   const { mode } = useTheme()
   return (
@@ -16,10 +19,12 @@ function Root() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <SafeAreaProvider>
-        <Root />
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <SafeAreaProvider>
+          <Root />
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   )
 }
