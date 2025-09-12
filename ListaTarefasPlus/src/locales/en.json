@@ -84,5 +84,9 @@
   "naoFoiPossivelCarregar": "Could not load",
   "tentarDeNovo": "Try again",
   "buscando": "Fetching...",
-  "novaFrase": "New quote"
+  "novaFrase": "New quote",
+
+  "nav.tarefas": "Tasks",
+  "nav.frases": "Quotes",
+  "nav.perfil": "Profile"
 }

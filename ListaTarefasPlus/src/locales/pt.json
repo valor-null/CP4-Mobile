@@ -84,5 +84,9 @@
   "naoFoiPossivelCarregar": "Não foi possível carregar",
   "tentarDeNovo": "Tentar de novo",
   "buscando": "Buscando...",
-  "novaFrase": "Nova frase"
+  "novaFrase": "Nova frase",
+
+  "nav.tarefas": "Tarefas",
+  "nav.frases": "Frases",
+  "nav.perfil": "Perfil"
 }
