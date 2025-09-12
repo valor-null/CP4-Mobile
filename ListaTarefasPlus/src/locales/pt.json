@@ -1,6 +1,6 @@
 {
   "bemVindo": "Bem-vindo",
-  
+
   "nome": "Nome",
   "email": "E-mail",
   "senha": "Senha",
@@ -53,5 +53,36 @@
   "atualizadoSucesso": "Atualizado com sucesso!",
   "hoje": "Hoje",
   "amanha": "Amanhã",
-  "ontem": "Ontem"
+  "ontem": "Ontem",
+
+  "meuPerfil": "Meu perfil",
+  "selecionarImagem": "Selecionar imagem",
+  "escolhaUmaOpcao": "Escolha uma opção",
+  "galeria": "Galeria",
+  "camera": "Câmera",
+  "cancelar": "Cancelar",
+  "permissaoNecessaria": "Permissão necessária",
+  "permitaAcessoGaleria": "Permita acesso à galeria nas configurações do dispositivo.",
+  "permitaAcessoCamera": "Permita acesso à câmera nas configurações do dispositivo.",
+  "pronto": "Pronto",
+  "nomeAtualizado": "Nome atualizado",
+  "emailEnviado": "E-mail enviado",
+  "verifiqueCaixaEntrada": "Verifique sua caixa de entrada para redefinir a senha.",
+  "excluirConta": "Excluir conta",
+  "confirmarExclusaoConta": "Tem certeza que deseja excluir sua conta?",
+  "salvarNome": "Salvar nome",
+  "salvando": "Salvando...",
+  "redefinirSenha": "Redefinir senha",
+  "enviando": "Enviando...",
+  "sair": "Sair",
+  "saindo": "Saindo...",
+  "excluindo": "Excluindo...",
+  "emailLabel": "E-mail",
+
+  "frasesMotivacionais": "Frases motivacionais",
+  "carregando": "Carregando...",
+  "naoFoiPossivelCarregar": "Não foi possível carregar",
+  "tentarDeNovo": "Tentar de novo",
+  "buscando": "Buscando...",
+  "novaFrase": "Nova frase"
 }

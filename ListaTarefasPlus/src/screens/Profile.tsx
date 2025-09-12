@@ -4,6 +4,7 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons'
 import { useTheme } from '../context/ThemeContext'
 import Navbar from '../components/Navbar'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
+import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import * as ImagePicker from 'expo-image-picker'
@@ -12,12 +13,14 @@ import { auth } from '../firebase/firebaseConfig'
 import { updateProfile, sendPasswordResetEmail, signOut, deleteUser } from 'firebase/auth'
 import { useEffect, useMemo, useState } from 'react'
 import { RootStackParamList } from '../types/navigation'
+import { useTranslation } from 'react-i18next'
 
 export default function Profile() {
   const insets = useSafeAreaInsets()
   const { colors: P } = useTheme()
   const styles = useMemo(() => makeStyles(P, insets.top), [P, insets.top])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+  const { t } = useTranslation()
 
   const user = auth.currentUser
   const [nome, setNome] = useState(user?.displayName ?? '')
@@ -38,7 +41,7 @@ export default function Profile() {
   async function pickFromGallery() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (!perm.granted) {
-      Alert.alert('Permissão necessária', 'Permita acesso à galeria nas configurações do dispositivo.')
+      Alert.alert(t('permissaoNecessaria'), t('permitaAcessoGaleria'))
       return
     }
     const res = await ImagePicker.launchImageLibraryAsync({
@@ -57,7 +60,7 @@ export default function Profile() {
   async function pickFromCamera() {
     const perm = await ImagePicker.requestCameraPermissionsAsync()
     if (!perm.granted) {
-      Alert.alert('Permissão necessária', 'Permita acesso à câmera nas configurações do dispositivo.')
+      Alert.alert(t('permissaoNecessaria'), t('permitaAcessoCamera'))
       return
     }
     const res = await ImagePicker.launchCameraAsync({
@@ -73,10 +76,10 @@ export default function Profile() {
   }
 
   function escolherFoto() {
-    Alert.alert('Selecionar imagem', 'Escolha uma opção', [
-      { text: 'Galeria', onPress: pickFromGallery },
-      { text: 'Câmera', onPress: pickFromCamera },
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert(t('selecionarImagem'), t('escolhaUmaOpcao'), [
+      { text: t('galeria'), onPress: pickFromGallery },
+      { text: t('camera'), onPress: pickFromCamera },
+      { text: t('cancelar'), style: 'cancel' },
     ])
   }
 
@@ -85,7 +88,7 @@ export default function Profile() {
     setSavingNome(true)
     try {
       await updateProfile(user, { displayName: nome.trim() })
-      Alert.alert('Pronto', 'Nome atualizado')
+      Alert.alert(t('pronto'), t('nomeAtualizado'))
     } finally {
       setSavingNome(false)
     }
@@ -96,7 +99,7 @@ export default function Profile() {
     setResetting(true)
     try {
       await sendPasswordResetEmail(auth, email)
-      Alert.alert('E-mail enviado', 'Verifique sua caixa de entrada para redefinir a senha.')
+      Alert.alert(t('emailEnviado'), t('verifiqueCaixaEntrada'))
     } finally {
       setResetting(false)
     }
@@ -113,9 +116,9 @@ export default function Profile() {
 
   async function excluirConta() {
     const ok = await new Promise<boolean>(resolve => {
-      Alert.alert('Excluir conta', 'Tem certeza que deseja excluir sua conta?', [
-        { text: 'Cancelar', style: 'cancel', onPress: () => resolve(false) },
-        { text: 'Excluir', style: 'destructive', onPress: () => resolve(true) },
+      Alert.alert(t('excluirConta'), t('confirmarExclusaoConta'), [
+        { text: t('cancelar'), style: 'cancel', onPress: () => resolve(false) },
+        { text: t('excluirConta'), style: 'destructive', onPress: () => resolve(true) },
       ])
     })
     if (!ok) return
@@ -135,8 +138,9 @@ export default function Profile() {
 
   return (
     <View style={styles.safe}>
+      <BotaoAlternarIdioma />
       <BotaoAlternarTema />
-      <Text style={styles.title}>Meu perfil</Text>
+      <Text style={styles.title}>{t('meuPerfil')}</Text>
 
       <View style={styles.card}>
         <TouchableOpacity onPress={escolherFoto} activeOpacity={0.9} style={styles.avatarBtn}>
@@ -151,30 +155,35 @@ export default function Profile() {
         </TouchableOpacity>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Nome</Text>
-          <TextInput value={nome} onChangeText={setNome} style={[styles.input, { backgroundColor: P.bg, color: P.text, borderColor: P.card }]} placeholderTextColor={P.text + '99'} />
+          <Text style={styles.label}>{t('nome')}</Text>
+          <TextInput
+            value={nome}
+            onChangeText={setNome}
+            style={[styles.input, { backgroundColor: P.bg, color: P.text, borderColor: P.card }]}
+            placeholderTextColor={P.text + '99'}
+          />
           <TouchableOpacity onPress={salvarNome} style={[styles.btn, { backgroundColor: P.primary }]} disabled={savingNome}>
-            <Text style={[styles.btnTxt, { color: P.bg }]}>{savingNome ? 'Salvando...' : 'Salvar nome'}</Text>
+            <Text style={[styles.btnTxt, { color: P.bg }]}>{savingNome ? t('salvando') : t('salvarNome')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>E-mail</Text>
+          <Text style={styles.label}>{t('emailLabel')}</Text>
           <View style={[styles.input, { backgroundColor: P.bg, borderColor: P.card, justifyContent: 'center' }]}>
             <Text style={{ color: P.text }}>{email}</Text>
           </View>
         </View>
 
         <TouchableOpacity onPress={redefinirSenha} style={[styles.btn, { backgroundColor: P.primary }]} disabled={resetting}>
-          <Text style={[styles.btnTxt, { color: P.bg }]}>{resetting ? 'Enviando...' : 'Redefinir senha'}</Text>
+          <Text style={[styles.btnTxt, { color: P.bg }]}>{resetting ? t('enviando') : t('redefinirSenha')}</Text>
         </TouchableOpacity>
 
         <View style={styles.row}>
           <TouchableOpacity onPress={sair} style={[styles.btnOutline, { borderColor: P.primary }]} disabled={signingOut}>
-            <Text style={[styles.btnOutlineTxt, { color: P.primary }]}>{signingOut ? 'Saindo...' : 'Sair'}</Text>
+            <Text style={[styles.btnOutlineTxt, { color: P.primary }]}>{signingOut ? t('saindo') : t('sair')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={excluirConta} style={styles.btnDanger} disabled={deleting}>
-            <Text style={styles.btnDangerTxt}>{deleting ? 'Excluindo...' : 'Excluir conta'}</Text>
+            <Text style={styles.btnDangerTxt}>{deleting ? t('excluindo') : t('excluirConta')}</Text>
           </TouchableOpacity>
         </View>
       </View>
