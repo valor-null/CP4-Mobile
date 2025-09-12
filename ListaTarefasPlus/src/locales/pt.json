@@ -1,8 +1,57 @@
 {
   "bemVindo": "Bem-vindo",
+  
+  "nome": "Nome",
+  "email": "E-mail",
+  "senha": "Senha",
+
   "criarConta": "Criar conta",
   "entrando": "Entrando...",
   "entrar": "Entrar",
   "erroLoginGenerico": "Não foi possível entrar",
-  "senha": "senha"
+
+  "cadastrar": "Cadastrar",
+  "cadastrando": "Cadastrando...",
+  "preenchaNomeEmailSenha": "Preencha nome, e-mail e senha",
+  "erroCadastroGenerico": "Não foi possível cadastrar",
+
+  "titulo": "Título",
+  "descricao": "Descrição",
+  "data": "Data",
+  "adicionar": "Adicionar",
+  "minhasTarefas": "Minhas tarefas",
+  "ola": "Olá, {{nome}}",
+  "organizeSuasTarefas": "Organize suas tarefas",
+  "semTarefasPorAqui": "Sem tarefas por aqui",
+  "vence": "Vence: {{quando}}",
+
+  "categoria": "Categoria",
+  "categoria.all": "Todos",
+  "categoria.trabalho": "Trabalho",
+  "categoria.pessoal": "Pessoal",
+  "categoria.estudos": "Estudos",
+  "categoria.desejos": "Desejos",
+
+  "listaVazia": "Nenhuma tarefa ainda",
+  "marcarConcluida": "Marcar concluída",
+  "remover": "Remover",
+  "editar": "Editar",
+  "buscar": "Buscar",
+  "filtro": "Filtro",
+  "todos": "Todos",
+  "pendentes": "Pendentes",
+  "concluidas": "Concluídas",
+  "itensCount": "{{count}} tarefa",
+  "itensCount_plural": "{{count}} tarefas",
+  "confirmarRemocao": "Tem certeza que deseja remover?",
+  "sim": "Sim",
+  "nao": "Não",
+  "erroObrigatorio": "Campo obrigatório",
+  "erroTituloMin": "O título deve ter pelo menos {{min}} caracteres",
+  "salvoSucesso": "Salvo com sucesso!",
+  "removidoSucesso": "Removido com sucesso!",
+  "atualizadoSucesso": "Atualizado com sucesso!",
+  "hoje": "Hoje",
+  "amanha": "Amanhã",
+  "ontem": "Ontem"
 }

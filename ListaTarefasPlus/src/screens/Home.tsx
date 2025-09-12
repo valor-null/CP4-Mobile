@@ -8,34 +8,37 @@ import { auth, db } from '../firebase/firebaseConfig'
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
 import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
+import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
 import { Task } from '../types/task'
 import Navbar from '../components/Navbar'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../types/navigation'
-
-const CATS = [
-  { chave: 'all', rotulo: 'Todos' },
-  { chave: 'trabalho', rotulo: 'Trabalho' },
-  { chave: 'pessoal', rotulo: 'Pessoal' },
-  { chave: 'estudos', rotulo: 'Estudos' },
-  { chave: 'desejos', rotulo: 'Desejos' }
-]
+import { useTranslation } from 'react-i18next'
 
 export default function Home() {
+  const { t } = useTranslation()
   const { colors: P } = useTheme()
   const insets = useSafeAreaInsets()
   const styles = useMemo(() => makeStyles(P, insets.top), [P, insets.top])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   const user = auth.currentUser
-  const nome = user?.displayName || user?.email?.split('@')[0] || ''
+  const nomeBase = user?.displayName || user?.email?.split('@')[0] || ''
   const [sel, setSel] = useState('all')
   const [titulo, setTitulo] = useState('')
   const [desc, setDesc] = useState('')
   const [formCat, setFormCat] = useState('trabalho')
   const [venc, setVenc] = useState<Date | null>(null)
   const [itens, setItens] = useState<Task[]>([])
+
+  const CATS = useMemo(() => ([
+    { chave: 'all', rotulo: t('categoria.all') },
+    { chave: 'trabalho', rotulo: t('categoria.trabalho') },
+    { chave: 'pessoal', rotulo: t('categoria.pessoal') },
+    { chave: 'estudos', rotulo: t('categoria.estudos') },
+    { chave: 'desejos', rotulo: t('categoria.desejos') }
+  ]), [t])
 
   useEffect(() => {
     if (!user) return
@@ -64,7 +67,7 @@ export default function Home() {
 
   const filtrados = useMemo(() => {
     if (sel === 'all') return itens
-    return itens.filter(t => t.category === sel)
+    return itens.filter(tk => tk.category === sel)
   }, [itens, sel])
 
   async function addTask() {
@@ -117,7 +120,11 @@ export default function Home() {
         <View style={styles.cardText}>
           <Text style={[styles.cardTitle, item.completed && styles.cardTitleDone]} numberOfLines={1}>{item.title}</Text>
           {!!item.description && <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>}
-          {!!item.dueDate && <Text style={styles.cardDue}>Vence: {fmt(item.dueDate || null)}</Text>}
+          {!!item.dueDate && (
+            <Text style={styles.cardDue}>
+              {t('vence', { quando: fmt(item.dueDate || null) })}
+            </Text>
+          )}
         </View>
         <TouchableOpacity onPress={() => remover(item.id)} style={styles.del}>
           <MaterialIcons name="close" size={18} color={P.primary} />
@@ -133,32 +140,68 @@ export default function Home() {
 
   return (
     <View style={styles.safe}>
+      <BotaoAlternarIdioma />
       <BotaoAlternarTema />
+
       <View style={styles.header}>
-        <Text style={styles.ola}>Olá, {nome}</Text>
-        <Text style={styles.sub}>Organize suas tarefas</Text>
+        <Text style={styles.ola}>{t('ola', { nome: nomeBase })}</Text>
+        <Text style={styles.sub}>{t('organizeSuasTarefas')}</Text>
       </View>
+
       <View style={styles.form}>
-        <TextInput placeholder="Título" value={titulo} onChangeText={setTitulo} style={styles.input} placeholderTextColor={P.text + '99'} />
-        <TextInput placeholder="Descrição" value={desc} onChangeText={setDesc} style={styles.input} placeholderTextColor={P.text + '99'} />
-        <CampoDeData valor={venc} onChange={setVenc} estiloBotao={styles.dateBtn} estiloTexto={styles.dateTxt} icone="event" rotulo="Data" />
-        <FiltrosDeCategoria dados={CATS.filter(c => c.chave !== 'all')} valor={formCat} onChange={setFormCat} style={styles.formChips} />
+        <TextInput
+          placeholder={t('titulo')}
+          value={titulo}
+          onChangeText={setTitulo}
+          style={styles.input}
+          placeholderTextColor={P.text + '99'}
+        />
+        <TextInput
+          placeholder={t('descricao')}
+          value={desc}
+          onChangeText={setDesc}
+          style={styles.input}
+          placeholderTextColor={P.text + '99'}
+        />
+        <CampoDeData
+          valor={venc}
+          onChange={setVenc}
+          estiloBotao={styles.dateBtn}
+          estiloTexto={styles.dateTxt}
+          icone="event"
+          rotulo={t('data')}
+        />
+        <FiltrosDeCategoria
+          dados={CATS.filter(c => c.chave !== 'all')}
+          valor={formCat}
+          onChange={setFormCat}
+          style={styles.formChips}
+        />
         <TouchableOpacity onPress={addTask} style={styles.button}>
-          <Text style={styles.buttonTxt}>Adicionar</Text>
+          <Text style={styles.buttonTxt}>{t('adicionar')}</Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.listHeader}>
-        <Text style={styles.listTitle}>Minhas tarefas</Text>
+        <Text style={styles.listTitle}>{t('minhasTarefas')}</Text>
         <Text style={styles.listCount}>{filtrados.length}</Text>
       </View>
-      <FiltrosDeCategoria dados={CATS} valor={sel} onChange={c => setSel(c)} style={styles.listChips} />
+
+      <FiltrosDeCategoria
+        dados={CATS}
+        valor={sel}
+        onChange={c => setSel(c)}
+        style={styles.listChips}
+      />
+
       <FlatList
         data={filtrados}
         keyExtractor={i => i.id}
         renderItem={Item}
-        ListEmptyComponent={<Text style={styles.empty}>Sem tarefas por aqui</Text>}
+        ListEmptyComponent={<Text style={styles.empty}>{t('semTarefasPorAqui')}</Text>}
         contentContainerStyle={filtrados.length === 0 ? styles.emptyWrap : undefined}
       />
+
       <View style={styles.navbarFixed}>
         <Navbar value="tasks" onChange={onTabChange} />
       </View>

@@ -1,8 +1,57 @@
 {
   "bemVindo": "Welcome",
+
+  "nome": "Name",
+  "email": "Email",
+  "senha": "Password",
+
   "criarConta": "Create account",
   "entrando": "Signing in...",
   "entrar": "Sign in",
   "erroLoginGenerico": "Could not sign in",
-  "senha": "password"
+
+  "cadastrar": "Sign up",
+  "cadastrando": "Signing up...",
+  "preenchaNomeEmailSenha": "Fill in name, email, and password",
+  "erroCadastroGenerico": "Could not create account",
+
+  "titulo": "Title",
+  "descricao": "Description",
+  "data": "Date",
+  "adicionar": "Add",
+  "minhasTarefas": "My tasks",
+  "ola": "Hi, {{nome}}",
+  "organizeSuasTarefas": "Organize your tasks",
+  "semTarefasPorAqui": "No tasks here",
+  "vence": "Due: {{quando}}",
+
+  "categoria": "Category",
+  "categoria.all": "All",
+  "categoria.trabalho": "Work",
+  "categoria.pessoal": "Personal",
+  "categoria.estudos": "Study",
+  "categoria.desejos": "Wishlist",
+
+  "listaVazia": "No tasks yet",
+  "marcarConcluida": "Mark as done",
+  "remover": "Remove",
+  "editar": "Edit",
+  "buscar": "Search",
+  "filtro": "Filter",
+  "todos": "All",
+  "pendentes": "Pending",
+  "concluidas": "Done",
+  "itensCount": "{{count}} task",
+  "itensCount_plural": "{{count}} tasks",
+  "confirmarRemocao": "Are you sure you want to remove it?",
+  "sim": "Yes",
+  "nao": "No",
+  "erroObrigatorio": "Required field",
+  "erroTituloMin": "Title must have at least {{min}} characters",
+  "salvoSucesso": "Saved successfully!",
+  "removidoSucesso": "Removed successfully!",
+  "atualizadoSucesso": "Updated successfully!",
+  "hoje": "Today",
+  "amanha": "Tomorrow",
+  "ontem": "Yesterday"
 }
