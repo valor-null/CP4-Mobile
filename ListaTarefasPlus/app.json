@@ -23,7 +23,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.valornull.listartarefasplus"
+      "package": "com.valornull.listartarefasplus",
+      "versionCode": 5
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,12 +33,22 @@
       "googleAndroidClientId": "103265643462-d8se5g312hhojv8lmsjh5c3kfupnsm3k.apps.googleusercontent.com",
       "googleWebClientId": "103265643462-98afq426rb4dj3fs4ppopm2u86teoht8.apps.googleusercontent.com",
       "googleExpoClientId": "103265643462-98afq426rb4dj3fs4ppopm2u86teoht8.apps.googleusercontent.com",
-      "googleIosClientId": ""
+      "googleIosClientId": "",
+      "eas": {
+        "projectId": "732b5eeb-1f59-491e-be36-0758eb0a33d5"
+      }
     },
     "plugins": [
       "expo-localization",
       "expo-font",
-      "expo-asset"
-    ]
+      "expo-asset",
+      "expo-notifications"
+    ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/732b5eeb-1f59-491e-be36-0758eb0a33d5"
+    }
   }
 }
