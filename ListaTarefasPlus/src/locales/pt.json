@@ -1,20 +1,16 @@
 {
   "bemVindo": "Bem-vindo",
-
   "nome": "Nome",
   "email": "E-mail",
   "senha": "Senha",
-
   "criarConta": "Criar conta",
   "entrando": "Entrando...",
   "entrar": "Entrar",
   "erroLoginGenerico": "Não foi possível entrar",
-
   "cadastrar": "Cadastrar",
   "cadastrando": "Cadastrando...",
   "preenchaNomeEmailSenha": "Preencha nome, e-mail e senha",
   "erroCadastroGenerico": "Não foi possível cadastrar",
-
   "titulo": "Título",
   "descricao": "Descrição",
   "data": "Data",
@@ -24,14 +20,12 @@
   "organizeSuasTarefas": "Organize suas tarefas",
   "semTarefasPorAqui": "Sem tarefas por aqui",
   "vence": "Vence: {{quando}}",
-
   "categoria": "Categoria",
   "categoria.all": "Todos",
   "categoria.trabalho": "Trabalho",
   "categoria.pessoal": "Pessoal",
   "categoria.estudos": "Estudos",
   "categoria.desejos": "Desejos",
-
   "listaVazia": "Nenhuma tarefa ainda",
   "marcarConcluida": "Marcar concluída",
   "remover": "Remover",
@@ -54,7 +48,6 @@
   "hoje": "Hoje",
   "amanha": "Amanhã",
   "ontem": "Ontem",
-
   "meuPerfil": "Meu perfil",
   "selecionarImagem": "Selecionar imagem",
   "escolhaUmaOpcao": "Escolha uma opção",
@@ -78,19 +71,26 @@
   "saindo": "Saindo...",
   "excluindo": "Excluindo...",
   "emailLabel": "E-mail",
-
   "frasesMotivacionais": "Frases motivacionais",
   "carregando": "Carregando...",
   "naoFoiPossivelCarregar": "Não foi possível carregar",
   "tentarDeNovo": "Tentar de novo",
   "buscando": "Buscando...",
   "novaFrase": "Nova frase",
-
   "nav.tarefas": "Tarefas",
   "nav.frases": "Frases",
   "nav.perfil": "Perfil",
-  "auth": {
-    "continueWithGoogle": "Continuar com o Google",
-    "signInWithGoogle": "Entrar com o Google"
+  "modal": {
+    "editarTarefa": "Editar tarefa",
+    "titulo": "Título",
+    "placeholderTitulo": "Título da tarefa",
+    "descricao": "Descrição",
+    "placeholderDescricao": "Detalhes",
+    "data": "Data",
+    "selecionar": "Selecionar",
+    "concluida": "Concluída",
+    "cancelar": "Cancelar",
+    "excluir": "Excluir",
+    "salvar": "Salvar"
   }
 }

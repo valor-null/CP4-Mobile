@@ -1,20 +1,16 @@
 {
   "bemVindo": "Welcome",
-
   "nome": "Name",
   "email": "Email",
   "senha": "Password",
-
   "criarConta": "Create account",
   "entrando": "Signing in...",
   "entrar": "Sign in",
   "erroLoginGenerico": "Could not sign in",
-
   "cadastrar": "Sign up",
   "cadastrando": "Signing up...",
   "preenchaNomeEmailSenha": "Fill in name, email, and password",
   "erroCadastroGenerico": "Could not create account",
-
   "titulo": "Title",
   "descricao": "Description",
   "data": "Date",
@@ -24,14 +20,12 @@
   "organizeSuasTarefas": "Organize your tasks",
   "semTarefasPorAqui": "No tasks here",
   "vence": "Due: {{quando}}",
-
   "categoria": "Category",
   "categoria.all": "All",
   "categoria.trabalho": "Work",
   "categoria.pessoal": "Personal",
   "categoria.estudos": "Study",
   "categoria.desejos": "Wishlist",
-
   "listaVazia": "No tasks yet",
   "marcarConcluida": "Mark as done",
   "remover": "Remove",
@@ -54,7 +48,6 @@
   "hoje": "Today",
   "amanha": "Tomorrow",
   "ontem": "Yesterday",
-
   "meuPerfil": "My profile",
   "selecionarImagem": "Select image",
   "escolhaUmaOpcao": "Choose an option",
@@ -78,19 +71,26 @@
   "saindo": "Signing out...",
   "excluindo": "Deleting...",
   "emailLabel": "Email",
-
   "frasesMotivacionais": "Motivational quotes",
   "carregando": "Loading...",
   "naoFoiPossivelCarregar": "Could not load",
   "tentarDeNovo": "Try again",
   "buscando": "Fetching...",
   "novaFrase": "New quote",
-
   "nav.tarefas": "Tasks",
   "nav.frases": "Quotes",
   "nav.perfil": "Profile",
-  "auth": {
-    "continueWithGoogle": "Continue with Google",
-    "signInWithGoogle": "Sign in with Google"
+  "modal": {
+    "editarTarefa": "Edit task",
+    "titulo": "Title",
+    "placeholderTitulo": "Task title",
+    "descricao": "Description",
+    "placeholderDescricao": "Details",
+    "data": "Date",
+    "selecionar": "Select",
+    "concluida": "Completed",
+    "cancelar": "Cancel",
+    "excluir": "Delete",
+    "salvar": "Save"
   }
 }

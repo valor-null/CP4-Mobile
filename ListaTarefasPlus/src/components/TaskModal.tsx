@@ -3,6 +3,7 @@ import { Modal, View, Text, TextInput, Pressable, Switch, StyleSheet } from "rea
 import { useTheme } from "../context/ThemeContext";
 import { Task } from "../types/task";
 import CampoDeData from "./CampoDeData";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   visible: boolean;
@@ -14,6 +15,7 @@ type Props = {
 
 export default function TaskModal({ visible, task, onClose, onSave, onDelete }: Props) {
   const { colors: P } = useTheme();
+  const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [completed, setCompleted] = useState(false);
@@ -44,45 +46,45 @@ export default function TaskModal({ visible, task, onClose, onSave, onDelete }: 
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={[styles.card, { backgroundColor: P.card, borderColor: P.text + "22" }]}>
-          <Text style={[styles.title, { color: P.text }]}>Editar tarefa</Text>
+          <Text style={[styles.title, { color: P.text }]}>{t("modal.editarTarefa")}</Text>
           <View style={styles.field}>
-            <Text style={[styles.label, { color: P.text + "99" }]}>Título</Text>
+            <Text style={[styles.label, { color: P.text + "99" }]}>{t("modal.titulo")}</Text>
             <TextInput
               value={title}
               onChangeText={setTitle}
-              placeholder="Título da tarefa"
+              placeholder={t("modal.placeholderTitulo")}
               placeholderTextColor={P.text + "66"}
               style={[styles.input, { color: P.text, borderColor: P.text + "22", backgroundColor: P.bg }]}
             />
           </View>
           <View style={styles.field}>
-            <Text style={[styles.label, { color: P.text + "99" }]}>Descrição</Text>
+            <Text style={[styles.label, { color: P.text + "99" }]}>{t("modal.descricao")}</Text>
             <TextInput
               value={description}
               onChangeText={setDescription}
-              placeholder="Detalhes"
+              placeholder={t("modal.placeholderDescricao")}
               placeholderTextColor={P.text + "66"}
               multiline
               style={[styles.textarea, { color: P.text, borderColor: P.text + "22", backgroundColor: P.bg }]}
             />
           </View>
           <View style={styles.field}>
-            <Text style={[styles.label, { color: P.text + "99" }]}>Data</Text>
-            <CampoDeData valor={due} onChange={setDue} estiloBotao={styles.dateBtn} estiloTexto={styles.dateTxt} icone="event" rotulo="Selecionar" />
+            <Text style={[styles.label, { color: P.text + "99" }]}>{t("modal.data")}</Text>
+            <CampoDeData valor={due} onChange={setDue} estiloBotao={styles.dateBtn} estiloTexto={styles.dateTxt} icone="event" rotulo={t("modal.selecionar")} />
           </View>
           <View style={styles.row}>
-            <Text style={[styles.label, { color: P.text + "99" }]}>Concluída</Text>
+            <Text style={[styles.label, { color: P.text + "99" }]}>{t("modal.concluida")}</Text>
             <Switch value={completed} onValueChange={setCompleted} />
           </View>
           <View style={styles.actions}>
             <Pressable onPress={onClose} style={[styles.button, { borderColor: P.text + "22", backgroundColor: "transparent" }]}>
-              <Text style={[styles.buttonText, { color: P.text }]}>Cancelar</Text>
+              <Text style={[styles.buttonText, { color: P.text }]}>{t("modal.cancelar")}</Text>
             </Pressable>
             <Pressable onPress={handleDelete} style={[styles.button, { borderColor: P.primary, backgroundColor: "transparent" }]}>
-              <Text style={[styles.buttonText, { color: P.primary }]}>Excluir</Text>
+              <Text style={[styles.buttonText, { color: P.primary }]}>{t("modal.excluir")}</Text>
             </Pressable>
             <Pressable onPress={handleSave} style={[styles.button, { borderColor: P.primary, backgroundColor: P.primary }]}>
-              <Text style={[styles.buttonText, { color: P.bg }]}>Salvar</Text>
+              <Text style={[styles.buttonText, { color: P.bg }]}>{t("modal.salvar")}</Text>
             </Pressable>
           </View>
         </View>
