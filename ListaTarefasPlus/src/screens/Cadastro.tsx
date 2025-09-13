@@ -7,10 +7,13 @@ import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
 import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
 import { useTranslation } from 'react-i18next'
+import GoogleSignInButton from '../components/GoogleSignInButton'
+import { useNavigation } from '@react-navigation/native'
 
 export default function Cadastro() {
   const { colors: P } = useTheme()
   const { t } = useTranslation()
+  const nav = useNavigation<any>()
 
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
@@ -89,6 +92,15 @@ export default function Cadastro() {
         <Feather name="user-check" size={18} color={P.bg} />
         <Text style={s.buttonTxt}>{loading ? t('cadastrando') : t('cadastrar')}</Text>
       </TouchableOpacity>
+
+      <View style={{ marginTop: 10 }}>
+        <GoogleSignInButton />
+      </View>
+
+      <TouchableOpacity onPress={() => nav.navigate('Login')} style={s.linkRow}>
+        <Feather name="log-in" size={16} color={P.primary} />
+        <Text style={s.link}>Já possui uma conta? Entrar</Text>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -102,6 +114,8 @@ function makeStyles(P: { bg: string; card: string; text: string; primary: string
     iconBtn: { padding: 4 },
     button: { height: 48, borderRadius: 10, backgroundColor: P.primary, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, marginTop: 4 },
     buttonTxt: { color: P.bg, fontWeight: '700' },
-    err: { color: '#CC8383', textAlign: 'center', marginTop: -2, marginBottom: 6 }
+    err: { color: '#CC8383', textAlign: 'center', marginTop: -2, marginBottom: 6 },
+    linkRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'center', marginTop: 12 },
+    link: { color: P.primary, fontWeight: '700' }
   })
 }

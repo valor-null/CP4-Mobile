@@ -8,6 +8,7 @@ import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
 import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
 import { useTranslation } from 'react-i18next'
+import GoogleSignInButton from '../components/GoogleSignInButton'
 
 export default function Login() {
   const nav = useNavigation<any>()
@@ -75,6 +76,10 @@ export default function Login() {
         <Feather name="log-in" size={18} color={P.bg} />
         <Text style={s.buttonTxt}>{loading ? t('entrando') : t('entrar')}</Text>
       </TouchableOpacity>
+
+      <View style={{ marginTop: 10 }}>
+        <GoogleSignInButton />
+      </View>
 
       <TouchableOpacity onPress={() => nav.navigate('Cadastro')} style={s.linkRow}>
         <Feather name="user-plus" size={16} color={P.primary} />
