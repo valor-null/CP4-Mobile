@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import FiltrosDeCategoria from '../components/FiltrosDeCategoria'
 import CampoDeData from '../components/CampoDeData'
 import { auth, db } from '../firebase/firebaseConfig'
-import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
 import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
 import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
@@ -15,6 +15,8 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../types/navigation'
 import { useTranslation } from 'react-i18next'
+import TaskModal from '../components/TaskModal'
+import { initNotifications, scheduleTaskReminder, cancelScheduledReminder } from '../notifications/notify'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -22,6 +24,10 @@ export default function Home() {
   const insets = useSafeAreaInsets()
   const styles = useMemo(() => makeStyles(P, insets.top), [P, insets.top])
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+
+  useEffect(() => {
+    initNotifications()
+  }, [])
 
   const user = auth.currentUser
   const nomeBase = user?.displayName || user?.email?.split('@')[0] || ''
@@ -31,6 +37,9 @@ export default function Home() {
   const [formCat, setFormCat] = useState('trabalho')
   const [venc, setVenc] = useState<Date | null>(null)
   const [itens, setItens] = useState<Task[]>([])
+
+  const [taskModalVisible, setTaskModalVisible] = useState(false)
+  const [taskSelected, setTaskSelected] = useState<Task | null>(null)
 
   const CATS = useMemo(() => ([
     { chave: 'all', rotulo: t('categoria.all') },
@@ -84,7 +93,11 @@ export default function Home() {
       updatedAt: serverTimestamp()
     }
     if (venc) payload.dueDate = Timestamp.fromDate(venc)
-    await addDoc(ref, payload)
+    const created = await addDoc(ref, payload)
+    if (venc) {
+      const nid = await scheduleTaskReminder(titulo.trim(), venc)
+      await updateDoc(created, { notifId: nid })
+    }
     setTitulo('')
     setDesc('')
     setVenc(null)
@@ -93,12 +106,25 @@ export default function Home() {
 
   async function toggleDone(id: string, done: boolean) {
     if (!user) return
-    await updateDoc(doc(db, 'users', user.uid, 'tasks', id), { completed: !done, updatedAt: serverTimestamp() })
+    const ref = doc(db, 'users', user.uid, 'tasks', id)
+    await updateDoc(ref, { completed: !done, updatedAt: serverTimestamp() })
+    if (!done) {
+      const snap = await getDoc(ref)
+      const nid = (snap.data() as any)?.notifId
+      if (nid) {
+        await cancelScheduledReminder(nid)
+        await updateDoc(ref, { notifId: null })
+      }
+    }
   }
 
   async function remover(id: string) {
     if (!user) return
-    await deleteDoc(doc(db, 'users', user.uid, 'tasks', id))
+    const ref = doc(db, 'users', user.uid, 'tasks', id)
+    const snap = await getDoc(ref)
+    const nid = (snap.data() as any)?.notifId
+    if (nid) await cancelScheduledReminder(nid)
+    await deleteDoc(ref)
   }
 
   function fmt(d?: Date | null) {
@@ -111,9 +137,52 @@ export default function Home() {
     return `${dd}/${mm}/${yyyy}, ${hh}:${mi}`
   }
 
+  function openTaskModal(task: Task) {
+    setTaskSelected(task)
+    setTaskModalVisible(true)
+  }
+
+  function closeTaskModal() {
+    setTaskModalVisible(false)
+    setTaskSelected(null)
+  }
+
+  async function onSaveTaskModal(taskId: string, updates: Partial<Task>) {
+    const u = auth.currentUser
+    if (!u) return
+    const ref = doc(db, 'users', u.uid, 'tasks', taskId)
+    const snap = await getDoc(ref)
+    const prev = snap.data() as any
+    const patch: any = {
+      title: updates.title,
+      description: updates.description ?? '',
+      completed: typeof updates.completed === 'boolean' ? updates.completed : prev?.completed,
+      updatedAt: serverTimestamp()
+    }
+    if (updates.dueDate !== undefined) {
+      patch.dueDate = updates.dueDate ? Timestamp.fromDate(updates.dueDate) : null
+      if (prev?.notifId) {
+        await cancelScheduledReminder(prev.notifId)
+        patch.notifId = null
+      }
+      if (updates.dueDate) {
+        const tTitle = updates.title !== undefined ? String(updates.title) : String(prev?.title || '')
+        const nid = await scheduleTaskReminder(tTitle, updates.dueDate)
+        patch.notifId = nid
+      }
+    }
+    await updateDoc(ref, patch)
+    closeTaskModal()
+  }
+
+  async function onDeleteTaskModal(taskId: string) {
+    await remover(taskId)
+    closeTaskModal()
+  }
+
   function Item({ item }: { item: Task }) {
     return (
-      <View style={styles.card}>
+      <TouchableOpacity style={styles.card} activeOpacity={0.9} onPress={() => openTaskModal(item)}>
         <TouchableOpacity onPress={() => toggleDone(item.id, item.completed)} style={[styles.check, item.completed && styles.checkOn]}>
           <MaterialIcons name={item.completed ? 'check' : 'radio-button-unchecked'} size={18} color={item.completed ? P.bg : P.primary} />
         </TouchableOpacity>
@@ -129,7 +198,7 @@ export default function Home() {
         <TouchableOpacity onPress={() => remover(item.id)} style={styles.del}>
           <MaterialIcons name="close" size={18} color={P.primary} />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     )
   }
 
@@ -205,6 +274,14 @@ export default function Home() {
       <View style={styles.navbarFixed}>
         <Navbar value="tasks" onChange={onTabChange} />
       </View>
+
+      <TaskModal
+        visible={taskModalVisible}
+        task={taskSelected}
+        onClose={closeTaskModal}
+        onSave={onSaveTaskModal}
+        onDelete={onDeleteTaskModal}
+      />
     </View>
   )
 }
