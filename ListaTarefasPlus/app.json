@@ -24,7 +24,19 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.valornull.listartarefasplus",
-      "versionCode": 8
+      "versionCode": 26,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": ["BROWSABLE", "DEFAULT"],
+          "data": [
+            {
+              "scheme": "com.googleusercontent.apps.103265643462-qp0q8j2s1d799drglr20fhcg89h098tg",
+              "path": "/oauthredirect"
+            }
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

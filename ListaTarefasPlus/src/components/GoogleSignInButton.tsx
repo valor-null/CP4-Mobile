@@ -16,24 +16,23 @@ const extra = (Constants.expoConfig?.extra || (Constants as any).manifest?.extra
 export default function GoogleSignInButton() {
   const nav = useNavigation<any>();
 
-  const redirectUri = makeRedirectUri({ scheme: "listatarefasplus" });
+  const androidClientId: string = extra.googleAndroidClientId;
+  const nativeScheme = `com.googleusercontent.apps.${androidClientId.replace(".apps.googleusercontent.com", "")}`;
+  const redirectUri = makeRedirectUri({ native: `${nativeScheme}:/oauthredirect` });
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: extra.googleWebClientId,
-    androidClientId: extra.googleAndroidClientId,
+    androidClientId,
     redirectUri
   });
 
   useEffect(() => {
-    async function finish() {
-      if (response?.type !== "success") return;
-      const idToken = (response.params as any)?.id_token;
-      if (!idToken) return;
-      const cred = GoogleAuthProvider.credential(idToken);
-      await signInWithCredential(auth, cred);
+    if (response?.type !== "success") return;
+    const idToken = (response.params as any)?.id_token;
+    if (!idToken) return;
+    const cred = GoogleAuthProvider.credential(idToken);
+    signInWithCredential(auth, cred).then(() => {
       nav.reset({ index: 0, routes: [{ name: "Home" }] });
-    }
-    finish();
+    });
   }, [response]);
 
   return (
