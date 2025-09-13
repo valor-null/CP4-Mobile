@@ -92,5 +92,7 @@
     "cancelar": "Cancelar",
     "excluir": "Excluir",
     "salvar": "Salvar"
-  }
+  },
+  "auth.continueWithGoogle": "Continuar com o Google",
+  "auth.signInWithGoogle": "Entrar com o Google"
 }

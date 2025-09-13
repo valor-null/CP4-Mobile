@@ -24,7 +24,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.valornull.listartarefasplus",
-      "versionCode": 26,
+      "versionCode": 27,
       "intentFilters": [
         {
           "action": "VIEW",
