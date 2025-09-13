@@ -88,5 +88,9 @@
 
   "nav.tarefas": "Tasks",
   "nav.frases": "Quotes",
-  "nav.perfil": "Profile"
+  "nav.perfil": "Profile",
+  "auth": {
+    "continueWithGoogle": "Continue with Google",
+    "signInWithGoogle": "Sign in with Google"
+  }
 }

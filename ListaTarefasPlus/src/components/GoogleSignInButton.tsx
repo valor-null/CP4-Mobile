@@ -8,6 +8,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
 import { auth } from "../firebase/firebaseConfig";
+import { useTranslation } from "react-i18next";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -15,6 +16,7 @@ const extra = (Constants.expoConfig?.extra || (Constants as any).manifest?.extra
 
 export default function GoogleSignInButton() {
   const nav = useNavigation<any>();
+  const { t } = useTranslation();
 
   const androidClientId: string = extra.googleAndroidClientId;
   const nativeScheme = `com.googleusercontent.apps.${androidClientId.replace(".apps.googleusercontent.com", "")}`;
@@ -52,7 +54,7 @@ export default function GoogleSignInButton() {
     >
       <AntDesign name="google" size={20} color="#fff" style={{ marginRight: 8 }} />
       <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>
-        Continuar com Google
+        {t("auth.continueWithGoogle")}
       </Text>
     </Pressable>
   );

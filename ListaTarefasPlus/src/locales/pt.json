@@ -88,5 +88,9 @@
 
   "nav.tarefas": "Tarefas",
   "nav.frases": "Frases",
-  "nav.perfil": "Perfil"
+  "nav.perfil": "Perfil",
+  "auth": {
+    "continueWithGoogle": "Continuar com o Google",
+    "signInWithGoogle": "Entrar com o Google"
+  }
 }
