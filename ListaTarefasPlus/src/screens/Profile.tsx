@@ -9,8 +9,10 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import * as ImagePicker from 'expo-image-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { auth } from '../firebase/firebaseConfig'
+import { auth, storage, db } from '../firebase/firebaseConfig'
 import { updateProfile, sendPasswordResetEmail, signOut, deleteUser } from 'firebase/auth'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { doc, setDoc } from 'firebase/firestore'
 import { useEffect, useMemo, useState } from 'react'
 import { RootStackParamList } from '../types/navigation'
 import { useTranslation } from 'react-i18next'
@@ -38,6 +40,22 @@ export default function Profile() {
     })
   }, [user?.photoURL])
 
+  async function uploadAndSetAvatar(localUri: string) {
+    const u = auth.currentUser
+    if (!u) return
+    const resp = await fetch(localUri)
+    const blob = await resp.blob()
+    const fileRef = ref(storage, `users/${u.uid}/profile.jpg`)
+    await uploadBytes(fileRef, blob, { contentType: 'image/jpeg' })
+    const url = await getDownloadURL(fileRef)
+    await updateProfile(u, { photoURL: url })
+    await setDoc(doc(db, 'users', u.uid), { photoURL: url, updatedAt: Date.now() }, { merge: true })
+    setFoto(url)
+    await AsyncStorage.setItem('avatarUri', url)
+    await u.reload()
+    return url
+  }
+
   async function pickFromGallery() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (!perm.granted) {
@@ -55,6 +73,7 @@ export default function Profile() {
     if (!uri) return
     setFoto(uri)
     await AsyncStorage.setItem('avatarUri', uri)
+    await uploadAndSetAvatar(uri)
   }
 
   async function pickFromCamera() {
@@ -73,6 +92,7 @@ export default function Profile() {
     if (!uri) return
     setFoto(uri)
     await AsyncStorage.setItem('avatarUri', uri)
+    await uploadAndSetAvatar(uri)
   }
 
   function escolherFoto() {
