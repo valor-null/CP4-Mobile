@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import FiltrosDeCategoria from '../components/FiltrosDeCategoria'
 import CampoDeData from '../components/CampoDeData'
 import { auth, db } from '../firebase/firebaseConfig'
-import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, query, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore'
 import { useTheme } from '../context/ThemeContext'
 import BotaoAlternarTema from '../components/BotaoAlternarTema'
 import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
@@ -17,6 +17,7 @@ import { RootStackParamList } from '../types/navigation'
 import { useTranslation } from 'react-i18next'
 import TaskModal from '../components/TaskModal'
 import { initNotifications, scheduleTaskReminder, cancelScheduledReminder } from '../notifications/notify'
+import { onAuthStateChanged } from 'firebase/auth'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -29,8 +30,19 @@ export default function Home() {
     initNotifications()
   }, [])
 
-  const user = auth.currentUser
-  const nomeBase = user?.displayName || user?.email?.split('@')[0] || ''
+  const [authReady, setAuthReady] = useState(false)
+  const [uid, setUid] = useState<string | null>(null)
+  const [nomeBase, setNomeBase] = useState('')
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, u => {
+      setUid(u?.uid ?? null)
+      setNomeBase(u?.displayName || u?.email?.split('@')[0] || '')
+      setAuthReady(true)
+    })
+    return unsub
+  }, [])
+
   const [sel, setSel] = useState('all')
   const [titulo, setTitulo] = useState('')
   const [desc, setDesc] = useState('')
@@ -50,9 +62,9 @@ export default function Home() {
   ]), [t])
 
   useEffect(() => {
-    if (!user) return
-    const ref = collection(db, 'users', user.uid, 'tasks')
-    const q = query(ref, where('deleted', '!=', true), orderBy('deleted'), orderBy('createdAt', 'desc'))
+    if (!uid) { setItens([]); return }
+    const ref = collection(db, 'users', uid, 'tasks')
+    const q = query(ref)
     const unsub = onSnapshot(q, snap => {
       const rows: Task[] = []
       snap.forEach(d => {
@@ -69,10 +81,16 @@ export default function Home() {
           updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt ?? null
         })
       })
-      setItens(rows)
+      const alive = rows.filter(r => r.deleted !== true)
+      alive.sort((a, b) => {
+        const ca = a.createdAt instanceof Date ? a.createdAt.getTime() : 0
+        const cb = b.createdAt instanceof Date ? b.createdAt.getTime() : 0
+        return cb - ca
+      })
+      setItens(alive)
     })
     return unsub
-  }, [user?.uid])
+  }, [uid])
 
   const filtrados = useMemo(() => {
     if (sel === 'all') return itens
@@ -80,9 +98,9 @@ export default function Home() {
   }, [itens, sel])
 
   async function addTask() {
-    if (!user) return
+    if (!uid) return
     if (!titulo.trim()) return
-    const ref = collection(db, 'users', user.uid, 'tasks')
+    const ref = collection(db, 'users', uid, 'tasks')
     const payload: any = {
       title: titulo.trim(),
       description: desc.trim(),
@@ -105,8 +123,8 @@ export default function Home() {
   }
 
   async function toggleDone(id: string, done: boolean) {
-    if (!user) return
-    const ref = doc(db, 'users', user.uid, 'tasks', id)
+    if (!uid) return
+    const ref = doc(db, 'users', uid, 'tasks', id)
     await updateDoc(ref, { completed: !done, updatedAt: serverTimestamp() })
     if (!done) {
       const snap = await getDoc(ref)
@@ -119,8 +137,8 @@ export default function Home() {
   }
 
   async function remover(id: string) {
-    if (!user) return
-    const ref = doc(db, 'users', user.uid, 'tasks', id)
+    if (!uid) return
+    const ref = doc(db, 'users', uid, 'tasks', id)
     const snap = await getDoc(ref)
     const nid = (snap.data() as any)?.notifId
     if (nid) await cancelScheduledReminder(nid)
@@ -148,9 +166,8 @@ export default function Home() {
   }
 
   async function onSaveTaskModal(taskId: string, updates: Partial<Task>) {
-    const u = auth.currentUser
-    if (!u) return
-    const ref = doc(db, 'users', u.uid, 'tasks', taskId)
+    if (!uid) return
+    const ref = doc(db, 'users', uid, 'tasks', taskId)
     const snap = await getDoc(ref)
     const prev = snap.data() as any
     const patch: any = {
@@ -206,6 +223,8 @@ export default function Home() {
     if (k === 'quotes') navigation.navigate('Quotes')
     if (k === 'profile') navigation.navigate('Profile')
   }
+
+  if (!authReady) return null
 
   return (
     <View style={styles.safe}>
