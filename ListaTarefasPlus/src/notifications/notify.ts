@@ -1,9 +1,9 @@
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
 
-export async function initNotifications() {
-  const { status } = await Notifications.getPermissionsAsync()
-  if (status !== 'granted') {
+async function ensureReady() {
+  const perm = await Notifications.getPermissionsAsync()
+  if (perm.status !== 'granted') {
     await Notifications.requestPermissionsAsync()
   }
   if (Platform.OS === 'android') {
@@ -14,13 +14,12 @@ export async function initNotifications() {
   }
 }
 
+export async function initNotifications() {
+  await ensureReady()
+}
+
 export async function scheduleTaskReminder(title: string, when: Date) {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.DEFAULT
-    })
-  }
+  await ensureReady()
   const diffMs = Math.max(1000, when.getTime() - Date.now())
   const seconds = Math.ceil(diffMs / 1000)
   const trigger: Notifications.TimeIntervalTriggerInput = {
@@ -42,12 +41,7 @@ export async function cancelScheduledReminder(id: string) {
 }
 
 export async function notifyAuthSuccess(kind: 'login' | 'signup') {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.DEFAULT
-    })
-  }
+  await ensureReady()
   await Notifications.scheduleNotificationAsync({
     content: {
       title: kind === 'signup' ? 'Cadastro realizado' : 'Login realizado',

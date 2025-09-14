@@ -1,3 +1,4 @@
+import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer, DarkTheme, DefaultTheme } from "@react-navigation/native";
@@ -7,7 +8,16 @@ import { ThemeProvider, useTheme } from "./src/context/ThemeContext";
 import "./src/services/i18n";
 import { LanguageProvider } from "./src/context/LanguageContext";
 import { initNotifications } from "./src/notifications/notify";
-import AuthListener from "./src/notifications/authListener";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 function Root() {
   const { mode } = useTheme();
@@ -15,7 +25,6 @@ function Root() {
     <NavigationContainer theme={mode === "dark" ? DarkTheme : DefaultTheme}>
       <StatusBar style={mode === "dark" ? "light" : "dark"} />
       <AppNavigator />
-      <AuthListener />
     </NavigationContainer>
   );
 }
