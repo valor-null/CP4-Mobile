@@ -28,7 +28,13 @@ src/
   services/          # i18n
   types/             # Tipos (Task)
 ```
-
+## 📚 Bibliotecas usadas
+- **🧭 Base/Navegação:** `expo`, `react`, `react-native`, `@react-navigation/native`, `@react-navigation/native-stack`, `react-native-screens`, `react-native-safe-area-context`, `@expo/vector-icons`
+- **🔥 Firebase:** `firebase` (Auth, Firestore, Storage)
+- **🔐 Auth Google:** `expo-auth-session`, `expo-auth-session/providers/google`, `expo-web-browser`, `expo-constants`
+- **💾🖼️ Persistência & Mídia:** `@react-native-async-storage/async-storage`, `expo-image-picker`
+- **🔔 Notificações:** `expo-notifications`
+- **🌍⚡ i18n & Data fetching:** `i18next`, `react-i18next`, `@tanstack/react-query`
 ## 🔧 PRÉ-REQUISITOS
 - Node.js + npm (ou yarn)
 - Conta e projeto no Firebase
