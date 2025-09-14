@@ -9,6 +9,7 @@ import BotaoAlternarIdioma from '../components/BotaoAlternarIdioma'
 import { useTranslation } from 'react-i18next'
 import GoogleSignInButton from '../components/GoogleSignInButton'
 import { useNavigation } from '@react-navigation/native'
+import { notifyAuthSuccess } from '../notifications/notify'
 
 export default function Cadastro() {
   const { colors: P } = useTheme()
@@ -33,6 +34,8 @@ export default function Cadastro() {
     try {
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), senha)
       await updateProfile(cred.user, { displayName: nome.trim() })
+      await notifyAuthSuccess('signup')
+      nav.reset({ index: 0, routes: [{ name: 'Home' }] })
     } catch {
       setErr(t('erroCadastroGenerico'))
     } finally {

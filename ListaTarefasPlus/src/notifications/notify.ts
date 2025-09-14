@@ -1,62 +1,58 @@
-import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
-import { Platform } from "react-native";
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false
-  })
-});
+import * as Notifications from 'expo-notifications'
+import { Platform } from 'react-native'
 
 export async function initNotifications() {
-  if (!Device.isDevice) return;
-  const perm = await Notifications.getPermissionsAsync();
-  if (perm.status !== "granted") {
-    await Notifications.requestPermissionsAsync();
+  const { status } = await Notifications.getPermissionsAsync()
+  if (status !== 'granted') {
+    await Notifications.requestPermissionsAsync()
   }
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.DEFAULT,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
-      bypassDnd: false,
-      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
-      enableVibrate: true,
-      enableLights: true,
-      showBadge: false
-    });
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.DEFAULT
+    })
   }
 }
 
 export async function scheduleTaskReminder(title: string, when: Date) {
-  const trigger: any = { date: when };
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.DEFAULT
+    })
+  }
+  const diffMs = Math.max(1000, when.getTime() - Date.now())
+  const seconds = Math.ceil(diffMs / 1000)
+  const trigger: Notifications.TimeIntervalTriggerInput = {
+    type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+    seconds,
+    repeats: false
+  }
   const id = await Notifications.scheduleNotificationAsync({
-    content: { title: "Lembrete de tarefa", body: title },
+    content: { title, body: '' },
     trigger
-  });
-  return id;
+  })
+  return id
 }
 
 export async function cancelScheduledReminder(id: string) {
-  await Notifications.cancelScheduledNotificationAsync(id);
+  try {
+    await Notifications.cancelScheduledNotificationAsync(id)
+  } catch {}
 }
 
-export async function sendWelcomeNotification() {
-  const trigger: any = { seconds: 1 };
+export async function notifyAuthSuccess(kind: 'login' | 'signup') {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.DEFAULT
+    })
+  }
   await Notifications.scheduleNotificationAsync({
-    content: { title: "Cadastro realizado", body: "Seja bem-vindo(a)!" },
-    trigger
-  });
-}
-
-export async function sendLoginNotification() {
-  const trigger: any = { seconds: 1 };
-  await Notifications.scheduleNotificationAsync({
-    content: { title: "Login realizado", body: "Bom te ver por aqui!" },
-    trigger
-  });
+    content: {
+      title: kind === 'signup' ? 'Cadastro realizado' : 'Login realizado',
+      body: kind === 'signup' ? 'Sua conta foi criada com sucesso.' : 'Você entrou com sucesso.'
+    },
+    trigger: null
+  })
 }

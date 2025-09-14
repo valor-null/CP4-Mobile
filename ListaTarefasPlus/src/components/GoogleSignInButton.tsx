@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
 import { auth } from "../firebase/firebaseConfig";
 import { useTranslation } from "react-i18next";
+import { notifyAuthSuccess } from "../notifications/notify";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -32,7 +33,8 @@ export default function GoogleSignInButton() {
     const idToken = (response.params as any)?.id_token;
     if (!idToken) return;
     const cred = GoogleAuthProvider.credential(idToken);
-    signInWithCredential(auth, cred).then(() => {
+    signInWithCredential(auth, cred).then(async () => {
+      await notifyAuthSuccess("login");
       nav.reset({ index: 0, routes: [{ name: "Home" }] });
     });
   }, [response]);
