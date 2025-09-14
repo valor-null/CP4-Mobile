@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Modal, View, Text, TextInput, Pressable, Switch, StyleSheet } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { Task } from "../types/task";
+import { Task, Categoria } from "../types/task";
 import CampoDeData from "./CampoDeData";
+import FiltrosDeCategoria from "./FiltrosDeCategoria";
 import { useTranslation } from "react-i18next";
 
 type Props = {
@@ -16,10 +17,22 @@ type Props = {
 export default function TaskModal({ visible, task, onClose, onSave, onDelete }: Props) {
   const { colors: P } = useTheme();
   const { t } = useTranslation();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [completed, setCompleted] = useState(false);
   const [due, setDue] = useState<Date | null>(null);
+  const [cat, setCat] = useState<Categoria>("trabalho");
+
+  const CATS = useMemo(
+    () => [
+      { chave: "trabalho", rotulo: t("categoria.trabalho") },
+      { chave: "pessoal", rotulo: t("categoria.pessoal") },
+      { chave: "estudos", rotulo: t("categoria.estudos") },
+      { chave: "desejos", rotulo: t("categoria.desejos") }
+    ],
+    [t]
+  );
 
   useEffect(() => {
     if (task) {
@@ -27,12 +40,13 @@ export default function TaskModal({ visible, task, onClose, onSave, onDelete }: 
       setDescription(task.description || "");
       setCompleted(!!task.completed);
       setDue(task.dueDate || null);
+      setCat((task.category as Categoria) || "trabalho");
     }
   }, [task]);
 
   function handleSave() {
     if (!task) return;
-    onSave(task.id, { title, description, completed, dueDate: due });
+    onSave(task.id, { title, description, completed, dueDate: due, category: cat });
     onClose();
   }
 
@@ -47,6 +61,7 @@ export default function TaskModal({ visible, task, onClose, onSave, onDelete }: 
       <View style={styles.backdrop}>
         <View style={[styles.card, { backgroundColor: P.card, borderColor: P.text + "22" }]}>
           <Text style={[styles.title, { color: P.text }]}>{t("modal.editarTarefa")}</Text>
+
           <View style={styles.field}>
             <Text style={[styles.label, { color: P.text + "99" }]}>{t("modal.titulo")}</Text>
             <TextInput
@@ -57,6 +72,7 @@ export default function TaskModal({ visible, task, onClose, onSave, onDelete }: 
               style={[styles.input, { color: P.text, borderColor: P.text + "22", backgroundColor: P.bg }]}
             />
           </View>
+
           <View style={styles.field}>
             <Text style={[styles.label, { color: P.text + "99" }]}>{t("modal.descricao")}</Text>
             <TextInput
@@ -68,14 +84,33 @@ export default function TaskModal({ visible, task, onClose, onSave, onDelete }: 
               style={[styles.textarea, { color: P.text, borderColor: P.text + "22", backgroundColor: P.bg }]}
             />
           </View>
+
           <View style={styles.field}>
             <Text style={[styles.label, { color: P.text + "99" }]}>{t("modal.data")}</Text>
-            <CampoDeData valor={due} onChange={setDue} estiloBotao={styles.dateBtn} estiloTexto={styles.dateTxt} icone="event" rotulo={t("modal.selecionar")} />
+            <CampoDeData
+              valor={due}
+              onChange={setDue}
+              estiloBotao={styles.dateBtn}
+              estiloTexto={styles.dateTxt}
+              icone="event"
+              rotulo={t("modal.selecionar")}
+            />
           </View>
+
+          <View style={styles.field}>
+            <Text style={[styles.label, { color: P.text + "99" }]}>{t("categoria")}</Text>
+            <FiltrosDeCategoria
+              dados={CATS}
+              valor={cat}
+              onChange={(v) => setCat(v as Categoria)}
+            />
+          </View>
+
           <View style={styles.row}>
             <Text style={[styles.label, { color: P.text + "99" }]}>{t("modal.concluida")}</Text>
             <Switch value={completed} onValueChange={setCompleted} />
           </View>
+
           <View style={styles.actions}>
             <Pressable onPress={onClose} style={[styles.button, { borderColor: P.text + "22", backgroundColor: "transparent" }]}>
               <Text style={[styles.buttonText, { color: P.text }]}>{t("modal.cancelar")}</Text>

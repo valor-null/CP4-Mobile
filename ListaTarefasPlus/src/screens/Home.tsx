@@ -176,6 +176,9 @@ export default function Home() {
       completed: typeof updates.completed === 'boolean' ? updates.completed : prev?.completed,
       updatedAt: serverTimestamp()
     }
+    if (updates.category !== undefined) {
+      patch.category = updates.category
+    }
     if (updates.dueDate !== undefined) {
       patch.dueDate = updates.dueDate ? Timestamp.fromDate(updates.dueDate) : null
       if (prev?.notifId) {
