@@ -17,6 +17,18 @@ Um app To-do List de tarefas multilíngue (PT/EN) com login (Google + E-mail/Sen
 - 💬 Quotes via API externa usando TanStack Query
 - 👤 Perfil com foto (upload no Firebase Storage e photoURL no Auth/Firestore)
 
+## 🏡 ARQUITETURA (pastas principais)
+```
+src/
+  components/        # Botões, chips, modal, etc.
+  context/           # ThemeContext, LanguageContext
+  firebase/          # firebaseConfig.tsx
+  notifications/     # notify.ts (alerts de auth)
+  screens/           # Login, Cadastro, Home, Profile, Quotes
+  services/          # i18n
+  types/             # Tipos (Task)
+```
+
 ## 🔧 PRÉ-REQUISITOS
 - Node.js + npm (ou yarn)
 - Conta e projeto no Firebase
