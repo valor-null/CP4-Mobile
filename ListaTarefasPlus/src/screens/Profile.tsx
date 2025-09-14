@@ -34,11 +34,15 @@ export default function Profile() {
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    AsyncStorage.getItem('avatarUri').then(uri => {
+    const load = async () => {
+      const key = user?.uid ? `avatarUri:${user.uid}` : null
+      const uri = key ? await AsyncStorage.getItem(key) : null
       if (uri) setFoto(uri)
       else if (user?.photoURL) setFoto(user.photoURL)
-    })
-  }, [user?.photoURL])
+      else setFoto(null)
+    }
+    load()
+  }, [user?.uid, user?.photoURL])
 
   async function uploadAndSetAvatar(localUri: string) {
     const u = auth.currentUser
@@ -51,7 +55,7 @@ export default function Profile() {
     await updateProfile(u, { photoURL: url })
     await setDoc(doc(db, 'users', u.uid), { photoURL: url, updatedAt: Date.now() }, { merge: true })
     setFoto(url)
-    await AsyncStorage.setItem('avatarUri', url)
+    await AsyncStorage.setItem(`avatarUri:${u.uid}`, url)
     await u.reload()
     return url
   }
@@ -72,7 +76,7 @@ export default function Profile() {
     const uri = res.assets?.[0]?.uri
     if (!uri) return
     setFoto(uri)
-    await AsyncStorage.setItem('avatarUri', uri)
+    if (user?.uid) await AsyncStorage.setItem(`avatarUri:${user.uid}`, uri)
     await uploadAndSetAvatar(uri)
   }
 
@@ -91,7 +95,7 @@ export default function Profile() {
     const uri = res.assets?.[0]?.uri
     if (!uri) return
     setFoto(uri)
-    await AsyncStorage.setItem('avatarUri', uri)
+    if (user?.uid) await AsyncStorage.setItem(`avatarUri:${user.uid}`, uri)
     await uploadAndSetAvatar(uri)
   }
 
